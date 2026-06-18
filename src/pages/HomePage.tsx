@@ -1,0 +1,106 @@
+import Button from "@/components/ui/Button"
+//import { useState } from "react"
+import { useDrive } from "@/hooks/useDrive"
+import { useArea } from "@/hooks/useAreas"
+import { useChurch } from "@/hooks/useChurches"
+
+
+const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+
+export default function HomePage() {
+  //const [selectedArea, setSelectedArea] = useState(0)
+  //const [selectedChurch, setSelectedChurch] = useState("")
+  const { loading, error, upload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
+  const { areas, loading: areaLoading } = useArea()
+  const { churches, loading: churchLoading, getByArea } = useChurch(1)
+
+  console.log(churches)
+
+
+
+  async function handleAreaChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    e.preventDefault()
+    const id = Number(e.target.value)
+    getByArea(id)
+  }
+
+
+  async function handleFormSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+
+    e.preventDefault()
+
+    const data = new FormData(e.currentTarget)
+
+    const name = data.get("Name") as string
+    const area = data.get("AreaSelect") as string
+    const church = data.get("ChurchSelect") as string
+
+    const recordCard = data.get('RecordCard') as File | null
+
+    if (recordCard) await upload(recordCard, "Test Folder")
+
+
+    console.log(`Name: ${name}, Area: ${area}, Church: ${church}`)
+
+  }
+
+  return (
+    <section className="mx-auto max-w-xl px-4 py-10">
+      <form onSubmit={handleFormSubmit} className="flex flex-col gap-8">
+
+        <div className="flex flex-col gap-4">
+          <h2 className="text-xl font-semibold text-gray-900">General Information</h2>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="Name" className="text-sm font-medium text-gray-700">Name</label>
+            <input type="text" id="Name" name="Name" className={inputClass} />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="AreaSelect" className="text-sm font-medium text-gray-700">Area</label>
+            <select id="AreaSelect" name="AreaSelect" className={inputClass} onChange={handleAreaChange} disabled={areaLoading}>
+              {areaLoading && <option>Loading...</option>}
+              {areas.map(option => (
+                <option key={option.id} value={option.id}>{option.sname}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="ChurchSelect" className="text-sm font-medium text-gray-700">Church</label>
+            <select id="ChurchSelect" name="ChurchSelect" className={inputClass} disabled={churchLoading}>
+              {churchLoading && <option>Loading...</option>}
+              {(churches ?? []).map(option => (
+                <option key={option.id} value={option.id}>{option.name} {option.cname}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <h2 className="text-xl font-semibold text-gray-900">Attendance Requirements</h2>
+
+          {[
+            { id: "RecordCard", label: "Record Card" },
+            { id: "EntranceEssay", label: "Entrance Essay" },
+            { id: "Notes", label: "Notes" },
+            { id: "Recommendation", label: "Recommendation" },
+          ].map(({ id, label }) => (
+            <div key={id} className="flex flex-col gap-1">
+              <label htmlFor={id} className="text-sm font-medium text-gray-700">{label}</label>
+              <input type="file" id={id} name={id} className="text-sm text-gray-600 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200" />
+            </div>
+          ))}
+        </div>
+
+        <Button type="submit" variant="primary" size="md" className="self-end">Submit</Button>
+
+      </form>
+
+      <div>
+        {loading && <div>Uploading Files...</div>}
+        {error && <div>There was an error with: {error}</div>}
+      </div>
+    </section>
+  )
+}
