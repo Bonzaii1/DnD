@@ -4,17 +4,15 @@ import { useDrive } from "@/hooks/useDrive"
 import { useArea } from "@/hooks/useAreas"
 import { useChurch } from "@/hooks/useChurches"
 
-
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
 
 export default function HomePage() {
   //const [selectedArea, setSelectedArea] = useState(0)
   //const [selectedChurch, setSelectedChurch] = useState("")
-  const { loading, error, upload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
+  const { loading, error, uploadResult, uploadPayload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
   const { areas, loading: areaLoading } = useArea()
   const { churches, loading: churchLoading, getByArea } = useChurch(1)
 
-  console.log(churches)
 
 
 
@@ -31,16 +29,29 @@ export default function HomePage() {
 
     const data = new FormData(e.currentTarget)
 
-    const name = data.get("Name") as string
-    const area = data.get("AreaSelect") as string
-    const church = data.get("ChurchSelect") as string
+    const fname = data.get("fName") as string
+    const lname = data.get("lName") as string
+    const areaId = Number(data.get("AreaSelect") as string)
+    const churchId = Number(data.get("ChurchSelect") as string)
+
+    const area = areas.find(area => area.id === areaId)
+    const church = churches.find(church => church.id === churchId)
 
     const recordCard = data.get('RecordCard') as File | null
+    const entranceEssay = data.get('EntranceEssay') as File | null
+    const notes = data.get('Notes') as File | null
+    const recommendation = data.get('Recommendation') as File | null
 
-    if (recordCard) await upload(recordCard, "Test Folder")
+    const payload = {
+      "fname": fname,
+      "lname": lname,
+      "recordCard": recordCard,
+      "entranceEssay": entranceEssay,
+      "notes": notes,
+      "recommendation": recommendation
+    }
 
-
-    console.log(`Name: ${name}, Area: ${area}, Church: ${church}`)
+    await uploadPayload(payload, `Source Folder/${area?.name}/${church?.name} ${church?.cname}`)
 
   }
 
@@ -52,8 +63,13 @@ export default function HomePage() {
           <h2 className="text-xl font-semibold text-gray-900">General Information</h2>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="Name" className="text-sm font-medium text-gray-700">Name</label>
-            <input type="text" id="Name" name="Name" className={inputClass} />
+            <label htmlFor="fName" className="text-sm font-medium text-gray-700">First Name</label>
+            <input required type="text" id="fName" name="fName" className={inputClass} />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="lName" className="text-sm font-medium text-gray-700">Last Name</label>
+            <input type="text" id="lName" name="lName" className={inputClass} />
           </div>
 
           <div className="flex flex-col gap-1">
@@ -71,7 +87,7 @@ export default function HomePage() {
             <select id="ChurchSelect" name="ChurchSelect" className={inputClass} disabled={churchLoading}>
               {churchLoading && <option>Loading...</option>}
               {(churches ?? []).map(option => (
-                <option key={option.id} value={option.id}>{option.name} {option.cname}</option>
+                <option key={option.id} value={option.id} >{option.name} {option.cname}</option>
               ))}
             </select>
           </div>
@@ -100,6 +116,7 @@ export default function HomePage() {
       <div>
         {loading && <div>Uploading Files...</div>}
         {error && <div>There was an error with: {error}</div>}
+        {uploadResult && <div>{uploadResult.message}</div>}
       </div>
     </section>
   )
