@@ -3,6 +3,7 @@ import Button from "@/components/ui/Button"
 import { useDrive } from "@/hooks/useDrive"
 import { useArea } from "@/hooks/useAreas"
 import { useChurch } from "@/hooks/useChurches"
+//import { useRequirements } from "@/hooks/useRequirements"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
 
@@ -12,6 +13,7 @@ export default function HomePage() {
   const { loading, error, uploadResult, uploadPayload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
   const { areas, loading: areaLoading } = useArea()
   const { churches, loading: churchLoading, getByArea } = useChurch(1)
+  //const { resMessage, update } = useRequirements()
 
 
 
@@ -42,6 +44,10 @@ export default function HomePage() {
     const notes = data.get('Notes') as File | null
     const recommendation = data.get('Recommendation') as File | null
 
+    console.log(recordCard)
+
+    console.log(notes)
+
     const payload = {
       "fname": fname,
       "lname": lname,
@@ -50,9 +56,19 @@ export default function HomePage() {
       "notes": notes,
       "recommendation": recommendation
     }
+    {
+      // const payloadRequirements = {
+      //   "recordCard": recordCard?.name ? 1 : 0,
+      //   "entranceEssay": entranceEssay?.name ? 1 : 0,
+      //   "notes": notes?.name ? 1 : 0,
+      //   "recommendation": recommendation?.name ? 1 : 0,
+      //   "userId": 1
+      // }
 
-    await uploadPayload(payload, `Source Folder/${area?.name}/${church?.name} ${church?.cname}`)
+      await uploadPayload(payload, `Source Folder/${area?.name}/${church?.name} ${church?.cname}`)
+      //await update(payloadRequirements)
 
+    }
   }
 
   return (
@@ -117,6 +133,7 @@ export default function HomePage() {
         {loading && <div>Uploading Files...</div>}
         {error && <div>There was an error with: {error}</div>}
         {uploadResult && <div>{uploadResult.message}</div>}
+        {/* {resMessage && <div>{resMessage}</div>} */}
       </div>
     </section>
   )

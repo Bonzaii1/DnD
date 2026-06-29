@@ -1,15 +1,20 @@
-import { Route, Routes } from 'react-router-dom'
-import RootLayout from '@/layouts/RootLayout'
-import HomePage from '@/pages/HomePage'
-import NotFoundPage from '@/pages/NotFoundPage'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import Login from '@/pages/Login'
+import RouteLayout from '@/layouts/RouteLayout'
+import { useAuth } from '@/context/authContext'
+
+
+function ProtectedRoute() {
+  const { user } = useAuth()
+  return user ? <RouteLayout /> : <Navigate to="/login" replace />
+}
+
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<RootLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/*" element={<ProtectedRoute />} />
     </Routes>
   )
 }
