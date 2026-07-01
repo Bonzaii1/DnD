@@ -6,6 +6,7 @@ import { useAuth } from '@/context/authContext'
 
 function ProtectedRoute() {
   const { user } = useAuth()
+  console.log(user)
   return user ? <RouteLayout /> : <Navigate to="/login" replace />
 }
 

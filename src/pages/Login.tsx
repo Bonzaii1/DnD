@@ -4,12 +4,13 @@ import { useAuth } from '@/context/authContext'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, user } = useAuth()
 
+  console.log("LOGGED AS " + user?.fname)
   return (
     <GoogleLogin
-      onSuccess={(credentialRes) => {
-        login(credentialRes)
+      onSuccess={async (credentialRes) => {
+        await login(credentialRes)
         navigate('/')
       }}
       onError={() => {

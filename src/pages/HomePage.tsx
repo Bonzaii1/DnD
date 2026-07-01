@@ -17,7 +17,6 @@ export default function HomePage() {
 
 
 
-
   async function handleAreaChange(e: React.ChangeEvent<HTMLSelectElement>) {
     e.preventDefault()
     const id = Number(e.target.value)
