@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from '@/pages/Login'
 import RouteLayout from '@/layouts/RouteLayout'
-import { useAuth } from '@/context/authContext'
+import { useAuth } from '@/hooks/useAuth'
 
 
 function ProtectedRoute() {

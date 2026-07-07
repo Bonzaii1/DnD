@@ -1,20 +1,8 @@
 
 import type { CredentialResponse } from "@react-oauth/google";
-import { createContext, useContext, useState } from "react";
-import { api } from "@/services/api";
-
-type User = {
-    fname: string,
-    lname: string,
-    email: string
-    picture: string
-}
-
-type AuthContextType = {
-    user: User | null
-    login: (res: CredentialResponse) => Promise<void>
-    logout: () => void
-}
+import { useState } from "react";
+import { api, ApiError } from "@/services/api";
+import { AuthContext, type User } from "@/context/AuthContextValue";
 
 type ApiResponse = {
     result: string,
@@ -24,8 +12,6 @@ type ApiResponse = {
     picture: string,
 }
 
-const AuthContext = createContext<AuthContextType>(null!)
-
 // function decodeJwt(token: string): Record<string, unknown> {
 //     const payload = token.split('.')[1]
 //     return JSON.parse(atob(payload))
@@ -34,29 +20,36 @@ const AuthContext = createContext<AuthContextType>(null!)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const [user, setUser] = useState<User | null>(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
-    async function login(res: CredentialResponse) {
+
+    async function login(res: CredentialResponse, signInKey: string) {
         if (!res.credential) return
 
-        const payload = await api.post<ApiResponse>("/api/user/auth", { credential: res.credential })
+        setLoading(true)
+        setError(null)
 
-        console.log(payload)
-        setUser({
-            fname: payload.fname,
-            lname: payload.lname,
-            email: payload.email,
-            picture: payload.picture,
-        })
+        try {
+            const payload = await api.post<ApiResponse>("/api/user/auth", { credential: res.credential, signInKey: signInKey })
 
-
+            setUser({
+                fname: payload.fname,
+                lname: payload.lname,
+                email: payload.email,
+                picture: payload.picture,
+            })
+        } catch (err) {
+            setError(err instanceof ApiError ? err.message : String(err))
+        } finally {
+            setLoading(false)
+        }
     }
 
     function logout() {
         setUser(null)
     }
 
-    return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
+    return <AuthContext.Provider value={{ user, loading, error, login, logout }}>{children}</AuthContext.Provider>
 
 }
-
-export const useAuth = () => useContext(AuthContext)
