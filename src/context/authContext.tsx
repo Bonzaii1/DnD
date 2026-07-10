@@ -8,6 +8,8 @@ type ApiResponse = {
     result: string,
     fname: string,
     lname: string,
+    churchId: number,
+    areaId: number,
     email: string,
     picture: string,
 }
@@ -37,6 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 fname: payload.fname,
                 lname: payload.lname,
                 email: payload.email,
+                churchId: payload.churchId,
+                areaId: payload.areaId,
                 picture: payload.picture,
             })
         } catch (err) {

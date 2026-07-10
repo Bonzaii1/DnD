@@ -2,9 +2,11 @@ import type { CredentialResponse } from "@react-oauth/google";
 import { createContext } from "react";
 
 export type User = {
-    fname: string,
-    lname: string,
+    fname: string
+    lname: string
     email: string
+    churchId: number
+    areaId: number
     picture: string
 }
 

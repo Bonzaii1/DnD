@@ -3,6 +3,7 @@ import Button from "@/components/ui/Button"
 import { useDrive } from "@/hooks/useDrive"
 import { useArea } from "@/hooks/useAreas"
 import { useChurch } from "@/hooks/useChurches"
+import { useAuth } from "@/hooks/useAuth"
 //import { useRequirements } from "@/hooks/useRequirements"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -12,16 +13,18 @@ export default function HomePage() {
   //const [selectedChurch, setSelectedChurch] = useState("")
   const { loading, error, uploadResult, uploadPayload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
   const { areas, loading: areaLoading } = useArea()
-  const { churches, loading: churchLoading, getByArea } = useChurch(1)
+  const { churches, loading: churchLoading } = useChurch(null)
+  const { user } = useAuth()
+  const userChurch = churches.find(church => church.id === user!.churchId)
   //const { resMessage, update } = useRequirements()
 
 
 
-  async function handleAreaChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    e.preventDefault()
-    const id = Number(e.target.value)
-    getByArea(id)
-  }
+  // async function handleAreaChange(e: React.ChangeEvent<HTMLSelectElement>) {
+  //   e.preventDefault()
+  //   const id = Number(e.target.value)
+  //   getByArea(id)
+  // }
 
 
   async function handleFormSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -30,10 +33,10 @@ export default function HomePage() {
 
     const data = new FormData(e.currentTarget)
 
-    const fname = data.get("fName") as string
-    const lname = data.get("lName") as string
-    const areaId = Number(data.get("AreaSelect") as string)
-    const churchId = Number(data.get("ChurchSelect") as string)
+    const fname = user!.fname
+    const lname = user!.lname
+    const areaId = user!.areaId
+    const churchId = user!.churchId
 
     const area = areas.find(area => area.id === areaId)
     const church = churches.find(church => church.id === churchId)
@@ -79,32 +82,25 @@ export default function HomePage() {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="fName" className="text-sm font-medium text-gray-700">First Name</label>
-            <input required type="text" id="fName" name="fName" className={inputClass} />
+            <input disabled type="text" id="fName" name="fName" placeholder={user!.fname} className={inputClass} />
           </div>
 
           <div className="flex flex-col gap-1">
             <label htmlFor="lName" className="text-sm font-medium text-gray-700">Last Name</label>
-            <input type="text" id="lName" name="lName" className={inputClass} />
+            <input disabled type="text" id="lName" name="lName" placeholder={user!.lname} className={inputClass} />
           </div>
 
           <div className="flex flex-col gap-1">
             <label htmlFor="AreaSelect" className="text-sm font-medium text-gray-700">Area</label>
-            <select id="AreaSelect" name="AreaSelect" className={inputClass} onChange={handleAreaChange} disabled={areaLoading}>
-              {areaLoading && <option>Loading...</option>}
-              {areas.map(option => (
-                <option key={option.id} value={option.id}>{option.sname}</option>
-              ))}
-            </select>
+            {areaLoading ? <option>Loading...</option> :
+              <input disabled type="text" id="Area" name="Area" placeholder={areas.find(area => area.id === user!.areaId)?.sname ?? ''} className={inputClass} />}
           </div>
 
           <div className="flex flex-col gap-1">
             <label htmlFor="ChurchSelect" className="text-sm font-medium text-gray-700">Church</label>
-            <select id="ChurchSelect" name="ChurchSelect" className={inputClass} disabled={churchLoading}>
-              {churchLoading && <option>Loading...</option>}
-              {(churches ?? []).map(option => (
-                <option key={option.id} value={option.id} >{option.name} {option.cname}</option>
-              ))}
-            </select>
+            {churchLoading ? <option>Loading...</option> :
+              <input disabled type="text" id="Church" name="Church" placeholder={userChurch ? `${userChurch.name} ${userChurch.cname}` : ''} className={inputClass} />}
+
           </div>
         </div>
 
