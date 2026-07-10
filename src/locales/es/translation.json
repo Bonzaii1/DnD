@@ -1,0 +1,12 @@
+{
+  "login": {
+    "title": "¡Iniciar sesión!",
+    "subtitle": "¿No tienes una cuenta?",
+    "googleButton": "Iniciar sesión con Google",
+    "triggerButton": "¿No tienes una cuenta?",
+    "keyLabel": "¡Usa tu clave de sesión proporcionada!",
+    "keyPlaceholder": "Clave de inicio de sesión",
+    "signingIn": "Iniciando sesión…",
+    "loginToContinue": "Inicia sesión para continuar"
+  }
+}

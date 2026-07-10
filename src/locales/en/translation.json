@@ -1,0 +1,12 @@
+{
+  "login": {
+    "title": "Sign in!",
+    "subtitle": "Don't have an account?",
+    "googleButton": "Sign in with Google",
+    "triggerButton": "Don't have an account?",
+    "keyLabel": "Use your provided sign in key to login!",
+    "keyPlaceholder": "Sign In Key",
+    "signingIn": "Signing in…",
+    "loginToContinue": "Login to continue"
+  }
+}
