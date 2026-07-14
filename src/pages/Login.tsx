@@ -37,7 +37,7 @@ export default function Login() {
             </button>
           </div>
           
-          <div className='flex flex-col gap-4 md:gap-5 items-stretch w-full md:w-auto md:min-w-[240px]'>
+          <div className='flex flex-col gap-4 md:gap-5 items-stretch w-full md:w-auto md:min-w-60'>
             <div className='rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200'>
               <GoogleLogin
                 onSuccess={async (credentialRes) => {
@@ -69,6 +69,8 @@ export default function Login() {
               </div>
             )
               }
+              {loading && <p className='text-xs text-gray-500'>Loading...</p>}
+              {error && <p className='text-xs text-red-600'>{error}</p>}
           </div>
         </div>
       </div>

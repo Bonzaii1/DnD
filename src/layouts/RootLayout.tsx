@@ -3,7 +3,7 @@ import Navbar from '@/components/ui/Navbar'
 
 export default function RootLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-gray-900 antialiased">
+    <div className="flex min-h-screen flex-col bg-[#f5f8ff] text-gray-900 antialiased">
       <header className="border-b border-gray-200">
         <Navbar />
       </header>
