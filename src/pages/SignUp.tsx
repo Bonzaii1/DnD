@@ -5,6 +5,7 @@ import { useArea } from "@/hooks/useAreas"
 import { useChurch } from "@/hooks/useChurches"
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { formatPhoneNumber} from "@/utils/utils"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
 
@@ -23,17 +24,6 @@ export default function SignUp(){
 
     const userArea = areas.find(area => area.id === user!.areaId)
     const userChurch = churches.find(church => church.id === user!.churchId)
-
-    console.log(user)
-    function formatPhoneNumber(value: string) {
-        // Remove all non-digits
-        const digits = value.replace(/\D/g, '').slice(0, 10)
-        
-        if (digits.length === 0) return ''
-        if (digits.length <= 3) return `(${digits}`
-        if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
-        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
-    }
 
     function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
         const formatted = formatPhoneNumber(e.target.value)

@@ -5,12 +5,20 @@ import { useArea } from "@/hooks/useAreas"
 import { useChurch } from "@/hooks/useChurches"
 import { useAuth } from "@/hooks/useAuth"
 import { useState } from "react"
+import { formatPhoneNumber} from "@/utils/utils"
 //import { useRequirements } from "@/hooks/useRequirements"
 
-const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
+
+const userLevel = ["Pathfinder", "TLT", "Master Guide Candidate", "Invested Master Guide", "Staff / Volunteer", "Parent"]
+const PFEvents = ["Area Drill Clinic", "Area Drum Clinic", "Drill and Drums Empower Leadership Training", "Previous TX Youth Bootcamp", "Color Guard Certification", "None of the above"]
+const signUpSheet = ["Drill Master English", "Drill Master Spanish", "Color Guard English", "Color Guard Spanish", "Drill Leadership", "Drum Beginner", "Drum Intermediate", "Drum Advanced", "Texas Conference Drum Corps", "Chaperone"]
+
+
 
 export default function Register() {
   const [page, setPage] = useState(1)
+  const [phoneNumber, setPhoneNumber] = useState("")
   // //const [selectedArea, setSelectedArea] = useState(0)
   // //const [selectedChurch, setSelectedChurch] = useState("")
   // const { loading, error, uploadResult, uploadPayload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
@@ -75,7 +83,10 @@ export default function Register() {
   //   }
   // }
 
-
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const formatted = formatPhoneNumber(e.target.value)
+        setPhoneNumber(formatted)
+    }
 
   return (
     //Form Object
@@ -84,49 +95,94 @@ export default function Register() {
       <form className="flex flex-col gap-5 md:p-4"> 
         { page === 1 &&
           <>
-            <h2 className="font-bold">Personal Info</h2>
+            <h2 className="font-bold">Landing Page</h2>
             <div className="flex gap-2">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="fName" className="text-sm font-medium text-black">First Name</label>
-                <input type="text" id = "fName" placeholder="First Name" className={inputClass} />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="fName" className="text-sm font-medium text-black">Last Name</label>
-                <input type="text" id = "fName" placeholder="First Name" className={inputClass} />
-              </div>
+              <p>Leads to Sign up page with guide to bootcamp? the personal info one?</p>
             </div>
 
             <div className="flex flex-col gap-1">
-                <label htmlFor="fName" className="text-sm font-medium text-black">Area</label>
-                <input type="text" id = "fName" placeholder="Area Name" className={inputClass} />
+                <p>Application flow, maybe an image?</p>
             </div>
 
-            <div className="flex flex-col gap-1">
-                <label htmlFor="fName" className="text-sm font-medium text-black">Church</label>
-                <input type="text" id = "fName" placeholder="Area Name" className={inputClass} />
+            <div className="flex flex-col gap-1 items-start">
+                <label htmlFor="fName" className="text-sm font-medium text-black">I certify that I have fully read and understood the TX Youth Bootcamp Guide</label>
+                <input type="checkbox" name="guide_certification" id="guide_certification" />
             </div>
-
-            
           </>
         }
         {
           page === 2 && 
           <>
+            <div className="flex gap-2">
+              <div className="flex flex-col gap-1">
+                <label htmlFor="dname" className="text-sm font-medium text-black">Director Name</label>
+                <input type="text" id = "dname" placeholder="Director Name" className={inputClass} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="fName" className="text-sm font-medium text-black">Director Phone #</label>
+                <input 
+                         type="tel" 
+                         name="dNumber" 
+                         id="dNumber" 
+                         value={phoneNumber}
+                         onChange={handlePhoneChange}
+                         placeholder="(123) 456-7890" 
+                         className={inputClass} 
+                       />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2"> 
+            <label htmlFor="PF_Level" className="text-sm font-medium text-gray-700">What level of Participation are you in pathfinders?</label>
+            <select id="PF_Level" name="PF_Level" className = {inputClass}>
+                <option value="">Select Option</option>
+                {userLevel.map((option, index) => (
+                    <option key={index} value={option}>{option}</option>
+                ))}
+            </select>
+            </div> 
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700">What events have you participated in the past?</label>
+              {PFEvents.map((option, index) => (
+                <label key={index} className="flex items-center gap-2 text-sm text-gray-900">
+                  <input 
+                    type="checkbox" 
+                    name="past_events" 
+                    value={option}
+                    className="rounded border-gray-300"
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-2"> 
+            <label htmlFor="certification_option" className="text-sm font-medium text-gray-700">What certification are you signing up for?</label>
+            <select id="certification_option" name="certification_option" className = {inputClass}>
+                <option value="">Select Option</option>
+                {signUpSheet.map((option, index) => (
+                    <option key={index} value={option}>{option}</option>
+                ))}
+            </select>
+            </div>  
+
+          </>
+
+        }
+        {
+          page === 3 && 
+          <>
             <div className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold text-gray-900">Attendance Requirements</h2>
 
-            {[
-              { id: "RecordCard", label: "Record Card" },
-              { id: "EntranceEssay", label: "Entrance Essay" },
-              { id: "Notes", label: "Notes" },
-              { id: "Recommendation", label: "Recommendation" },
-            ].map(({ id, label }) => (
-              <div key={id} className="flex flex-col gap-1">
-                <label htmlFor={id} className="text-sm font-medium text-gray-700">{label}</label>
-                <input type="file" id={id} name={id} className="text-sm text-gray-600 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200" />
-              </div>
-            ))}
-          </div>
+            <h2 className = 'text-xl font-semibold text-gray-900'>Requirements here</h2>
+
+            <div className="flex flex-col gap-1 items-start">
+                <label htmlFor="fName" className="text-sm font-medium text-black">I certify that I have fully read and understood the TX Youth Bootcamp Guide</label>
+                <input type="checkbox" name="requirements_check" id="requirements_check" />
+            </div>
+            </div>
           </>
 
         }
@@ -143,7 +199,7 @@ export default function Register() {
       Previous
     </Button>
         <Button 
-      onClick={() => page < 2 && setPage(page + 1)}
+      onClick={() => page < 3 && setPage(page + 1)}
       variant="primary"
       className='w-full shadow-sm hover:shadow-md transition-all duration-200 py-3'
     >
