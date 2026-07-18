@@ -4,6 +4,8 @@ import { useDrive } from "@/hooks/useDrive"
 import { useArea } from "@/hooks/useAreas"
 import { useChurch } from "@/hooks/useChurches"
 import { useAuth } from "@/hooks/useAuth"
+import { useEventSeries } from "@/hooks/useEventSeries"
+import { useCertificationType } from "@/hooks/useCertifications"
 import { useState } from "react"
 import { formatPhoneNumber} from "@/utils/utils"
 //import { useRequirements } from "@/hooks/useRequirements"
@@ -18,7 +20,10 @@ const signUpSheet = ["Drill Master English", "Drill Master Spanish", "Color Guar
 
 export default function Register() {
   const [page, setPage] = useState(1)
-  const [phoneNumber, setPhoneNumber] = useState("")
+  const [bootCampGuideVerify, setBootCampGuideVerify] = useState(false)
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true)
+  const {eventSeries } = useEventSeries()
+  const {certifications } = useCertificationType()
   // //const [selectedArea, setSelectedArea] = useState(0)
   // //const [selectedChurch, setSelectedChurch] = useState("")
   // const { loading, error, uploadResult, uploadPayload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
@@ -83,10 +88,6 @@ export default function Register() {
   //   }
   // }
 
-  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const formatted = formatPhoneNumber(e.target.value)
-        setPhoneNumber(formatted)
-    }
 
   return (
     //Form Object
@@ -106,31 +107,13 @@ export default function Register() {
 
             <div className="flex flex-col gap-1 items-start">
                 <label htmlFor="fName" className="text-sm font-medium text-black">I certify that I have fully read and understood the TX Youth Bootcamp Guide</label>
-                <input type="checkbox" name="guide_certification" id="guide_certification" />
+                <input type="checkbox" name="guide_certification" id="guide_certification" checked={bootCampGuideVerify} onChange={(e) => {setIsButtonDisabled(!e.target.checked); setBootCampGuideVerify(e.target.checked)}} />
             </div>
           </>
         }
         {
           page === 2 && 
           <>
-            <div className="flex gap-2">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="dname" className="text-sm font-medium text-black">Director Name</label>
-                <input type="text" id = "dname" placeholder="Director Name" className={inputClass} />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="fName" className="text-sm font-medium text-black">Director Phone #</label>
-                <input 
-                         type="tel" 
-                         name="dNumber" 
-                         id="dNumber" 
-                         value={phoneNumber}
-                         onChange={handlePhoneChange}
-                         placeholder="(123) 456-7890" 
-                         className={inputClass} 
-                       />
-              </div>
-            </div>
 
             <div className="flex flex-col gap-2"> 
             <label htmlFor="PF_Level" className="text-sm font-medium text-gray-700">What level of Participation are you in pathfinders?</label>
@@ -144,15 +127,15 @@ export default function Register() {
 
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">What events have you participated in the past?</label>
-              {PFEvents.map((option, index) => (
+              {eventSeries.map((option, index) => (
                 <label key={index} className="flex items-center gap-2 text-sm text-gray-900">
                   <input 
                     type="checkbox" 
                     name="past_events" 
-                    value={option}
+                    value={option.id}
                     className="rounded border-gray-300"
                   />
-                  {option}
+                  {option.name}
                 </label>
               ))}
             </div>
@@ -161,8 +144,8 @@ export default function Register() {
             <label htmlFor="certification_option" className="text-sm font-medium text-gray-700">What certification are you signing up for?</label>
             <select id="certification_option" name="certification_option" className = {inputClass}>
                 <option value="">Select Option</option>
-                {signUpSheet.map((option, index) => (
-                    <option key={index} value={option}>{option}</option>
+                {certifications.map((option, index) => (
+                    <option key={index} value={option.id}>{option.name}</option>
                 ))}
             </select>
             </div>  
@@ -202,6 +185,7 @@ export default function Register() {
       onClick={() => page < 3 && setPage(page + 1)}
       variant="primary"
       className='w-full shadow-sm hover:shadow-md transition-all duration-200 py-3'
+      disabled ={isButtonDisabled}
     >
       Next
     </Button>

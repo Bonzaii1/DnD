@@ -50,8 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 areaId: payload.areaId,
                 picture: payload.picture,
                 active: payload.active,
-                bootcamp_flag: payload.bootcamp_flag,
-                bootcamp_option: payload.bootcamp_option,
+                // bootcamp_flag: payload.bootcamp_flag,
+                // bootcamp_option: payload.bootcamp_option,
                 google_sub: payload.google_sub
             })
         } catch (err) {
@@ -81,8 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 areaId: payload.areaId,
                 picture: payload.picture,
                 active: payload.active,
-                bootcamp_flag: payload.bootcamp_flag,
-                bootcamp_option: payload.bootcamp_option,
+                // bootcamp_flag: payload.bootcamp_flag,
+                // bootcamp_option: payload.bootcamp_option,
                 google_sub: payload.google_sub
             })
         } catch (err) {

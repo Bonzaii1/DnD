@@ -11,8 +11,8 @@ export type User = {
     churchId: number
     areaId: number
     picture: string,
-    bootcamp_flag: string,
-    bootcamp_option: string
+    // bootcamp_flag: string,
+    // bootcamp_option: string
     google_sub: string
 }
 
@@ -22,8 +22,8 @@ export type userObj = {
     email: string,
     phoneNumber: string,
     dateOfBirth: string,
-    bootcamp_flag: number,
-    bootcamp_option: string,
+    // bootcamp_flag: number,
+    // bootcamp_option: string,
     google_sub: string
 }
 

@@ -16,8 +16,8 @@ export default function SignUp(){
     const navigate = useNavigate()
     const { user, loading, error, updateUser } = useAuth()
     const [phoneNumber, setPhoneNumber] = useState(user?.phone_number ? user?.phone_number : "")
-    const [bootCampFlag, setBootCampFlag] = useState(user?.bootcamp_flag ? true : false)
-    const [bootcampOption, setBootcampOption] = useState(user?.bootcamp_option || "")
+    // const [bootCampFlag, setBootCampFlag] = useState(user?.bootcamp_flag ? true : false)
+    // const [bootcampOption, setBootcampOption] = useState(user?.bootcamp_option || "")
     const { areas, loading: areaLoading } = useArea()
     const { churches, loading: churchLoading } = useChurch(null)
 
@@ -27,7 +27,7 @@ export default function SignUp(){
 
     function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
         const formatted = formatPhoneNumber(e.target.value)
-        setPhoneNumber(formatted)
+         setPhoneNumber(formatted)
     }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -41,8 +41,8 @@ export default function SignUp(){
             email: formData.get('email') as string,
             phoneNumber: phoneNumber,
             dateOfBirth: formData.get('date_of_birth') as string,
-            bootcamp_flag: bootCampFlag ? 1 : 0,
-            bootcamp_option: bootCampFlag ? bootcampOption : "",
+            // bootcamp_flag: bootCampFlag ? 1 : 0,
+            // bootcamp_option: bootCampFlag ? bootcampOption : "",
             google_sub: user!.google_sub
         }
         
@@ -114,8 +114,9 @@ export default function SignUp(){
                         className={inputClass} 
                         />
                     </div>
+                    
 
-                   <div className="flex flex-col gap-1 items-start">
+                   {/* <div className="flex flex-col gap-1 items-start">
                        <label htmlFor="pNumber" className="text-sm font-medium text-black">Have you attended a previous Bootcamp</label>
                        <input type="checkbox" name="bootcamp_flag" id="bootcamp_flag" checked={bootCampFlag} onChange={(e) => setBootCampFlag(e.target.checked)} />
                    </div>
@@ -128,7 +129,7 @@ export default function SignUp(){
                                 <option key={index} value={option}>{option}</option>
                             ))}
                         </select>
-                    </div>
+                    </div> */}
 
                 <Button 
                     type="submit"
