@@ -2,11 +2,13 @@ import type { CredentialResponse } from "@react-oauth/google";
 import { createContext } from "react";
 
 export type User = {
+    id: number
     fname: string
     lname: string
     email: string
     phone_number: string
     date_of_birth: Date
+    role: string
     active: number
     churchId: number
     areaId: number
@@ -31,7 +33,7 @@ export type AuthContextType = {
     user: User | null
     loading: boolean
     error: string | null
-    updateUser: (userObj: userObj) => Promise<void>
+    updateUser: (user: User) => Promise<void>
     login: (res: CredentialResponse, signInKey: string) => Promise<void>
     logout: () => void
 }

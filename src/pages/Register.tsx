@@ -1,20 +1,14 @@
 import Button from "@/components/ui/Button"
 //import { useState } from "react"
-import { useDrive } from "@/hooks/useDrive"
-import { useArea } from "@/hooks/useAreas"
-import { useChurch } from "@/hooks/useChurches"
 import { useAuth } from "@/hooks/useAuth"
 import { useEventSeries } from "@/hooks/useEventSeries"
 import { useCertificationType } from "@/hooks/useCertifications"
 import { useState } from "react"
-import { formatPhoneNumber} from "@/utils/utils"
+import { api } from "@/services/api"
 //import { useRequirements } from "@/hooks/useRequirements"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
 
-const userLevel = ["Pathfinder", "TLT", "Master Guide Candidate", "Invested Master Guide", "Staff / Volunteer", "Parent"]
-const PFEvents = ["Area Drill Clinic", "Area Drum Clinic", "Drill and Drums Empower Leadership Training", "Previous TX Youth Bootcamp", "Color Guard Certification", "None of the above"]
-const signUpSheet = ["Drill Master English", "Drill Master Spanish", "Color Guard English", "Color Guard Spanish", "Drill Leadership", "Drum Beginner", "Drum Intermediate", "Drum Advanced", "Texas Conference Drum Corps", "Chaperone"]
 
 
 
@@ -22,8 +16,20 @@ export default function Register() {
   const [page, setPage] = useState(1)
   const [bootCampGuideVerify, setBootCampGuideVerify] = useState(false)
   const [isButtonDisabled, setIsButtonDisabled] = useState(true)
+  const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true)
   const {eventSeries } = useEventSeries()
   const {certifications } = useCertificationType()
+  const {user} = useAuth()
+  
+  // Page 2 form values
+  
+  const [pastEvents, setPastEvents] = useState<number[]>([])
+  const [certificationOption, setCertificationOption] = useState("")
+  
+  // Registration status
+  const [successMessage, setSuccessMessage] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   // //const [selectedArea, setSelectedArea] = useState(0)
   // //const [selectedChurch, setSelectedChurch] = useState("")
   // const { loading, error, uploadResult, uploadPayload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
@@ -89,6 +95,32 @@ export default function Register() {
   // }
 
 
+  async function handleSubmit(){
+    setIsSubmitting(true)
+    setSuccessMessage("")
+    setErrorMessage("")
+    
+    try {
+      const response = await api.post('/api/db/register', {
+        pastEvents,
+        certificationOption,
+        userId: user!.id,
+        eventId: 6
+      })
+      
+      console.log('Registration successful:', response)
+      setSuccessMessage("Registration successful! Your certification application has been submitted.")
+      // Optionally reset form or redirect after a delay
+      // setTimeout(() => navigate('/'), 2000)
+    } catch (error: any) {
+      console.error('Registration failed:', error)
+      setErrorMessage(error?.message || "Registration failed. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+
   return (
     //Form Object
     <section className="p-4 flex flex-col bg-white rounded-xl md:max-w-md  gap-4 md:p-8 md:border md:border-gray-300 justify-center mx-auto ">
@@ -115,16 +147,6 @@ export default function Register() {
           page === 2 && 
           <>
 
-            <div className="flex flex-col gap-2"> 
-            <label htmlFor="PF_Level" className="text-sm font-medium text-gray-700">What level of Participation are you in pathfinders?</label>
-            <select id="PF_Level" name="PF_Level" className = {inputClass}>
-                <option value="">Select Option</option>
-                {userLevel.map((option, index) => (
-                    <option key={index} value={option}>{option}</option>
-                ))}
-            </select>
-            </div> 
-
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">What events have you participated in the past?</label>
               {eventSeries.map((option, index) => (
@@ -133,6 +155,14 @@ export default function Register() {
                     type="checkbox" 
                     name="past_events" 
                     value={option.id}
+                    checked={pastEvents.includes(option.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setPastEvents([...pastEvents, option.id])
+                      } else {
+                        setPastEvents(pastEvents.filter(id => id !== option.id))
+                      }
+                    }}
                     className="rounded border-gray-300"
                   />
                   {option.name}
@@ -142,7 +172,13 @@ export default function Register() {
 
             <div className="flex flex-col gap-2"> 
             <label htmlFor="certification_option" className="text-sm font-medium text-gray-700">What certification are you signing up for?</label>
-            <select id="certification_option" name="certification_option" className = {inputClass}>
+            <select 
+              id="certification_option" 
+              name="certification_option" 
+              className={inputClass}
+              value={certificationOption}
+              onChange={(e) => setCertificationOption(e.target.value)}
+            >
                 <option value="">Select Option</option>
                 {certifications.map((option, index) => (
                     <option key={index} value={option.id}>{option.name}</option>
@@ -163,7 +199,7 @@ export default function Register() {
 
             <div className="flex flex-col gap-1 items-start">
                 <label htmlFor="fName" className="text-sm font-medium text-black">I certify that I have fully read and understood the TX Youth Bootcamp Guide</label>
-                <input type="checkbox" name="requirements_check" id="requirements_check" />
+                <input type="checkbox" name="requirements_check" id="requirements_check" onChange={(e) => {setIsSubmitButtonDisabled(!e.target.checked)}} />
             </div>
             </div>
           </>
@@ -172,23 +208,61 @@ export default function Register() {
 
       </form>
 
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="p-4 rounded-md bg-green-50 border border-green-200">
+          <p className="text-sm text-green-800">{successMessage}</p>
+        </div>
+      )}
+      
+      {errorMessage && (
+        <div className="p-4 rounded-md bg-red-50 border border-red-200">
+          <p className="text-sm text-red-800">{errorMessage}</p>
+        </div>
+      )}
 
       <div className="flex gap-3">
         <Button 
-      onClick={() => page > 1  && setPage(page - 1)}
+      onClick={() => {
+        if (page > 1) {
+          setPage(page - 1)
+          setSuccessMessage("")
+          setErrorMessage("")
+        }
+      }}
       variant="secondary"
       className='w-full shadow-sm hover:shadow-md transition-all duration-200 py-3'
     >
       Previous
     </Button>
-        <Button 
-      onClick={() => page < 3 && setPage(page + 1)}
+
+    {
+      page === 3 ?
+      <Button 
+      onClick={handleSubmit}
+      variant="primary"
+      className='w-full shadow-sm hover:shadow-md transition-all duration-200 py-3'
+      disabled={isSubmitButtonDisabled || isSubmitting}
+    >
+      {isSubmitting ? 'Submitting...' : 'Submit'}
+    </Button>
+    :
+    <Button 
+      onClick={() => {
+        if (page < 3) {
+          setPage(page + 1)
+          setSuccessMessage("")
+          setErrorMessage("")
+        }
+      }}
       variant="primary"
       className='w-full shadow-sm hover:shadow-md transition-all duration-200 py-3'
       disabled ={isButtonDisabled}
     >
       Next
     </Button>
+
+    }
       </div>
       
 

@@ -10,16 +10,19 @@ import { formatPhoneNumber} from "@/utils/utils"
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
 
 
-const testList = ["Option1", "Option2", "Option3"]
+
+const userLevel = ["Pathfinder", "TLT", "Master Guide Candidate", "Invested Master Guide", "Staff / Volunteer", "Parent"]
+
 
 export default function SignUp(){
     const navigate = useNavigate()
     const { user, loading, error, updateUser } = useAuth()
     const [phoneNumber, setPhoneNumber] = useState(user?.phone_number ? user?.phone_number : "")
+    const [pfLevel, setPfLevel] = useState(user?.role || "")
     // const [bootCampFlag, setBootCampFlag] = useState(user?.bootcamp_flag ? true : false)
     // const [bootcampOption, setBootcampOption] = useState(user?.bootcamp_option || "")
-    const { areas, loading: areaLoading } = useArea()
-    const { churches, loading: churchLoading } = useChurch(null)
+    const { areas  } = useArea()
+    const { churches } = useChurch(null)
 
 
     const userArea = areas.find(area => area.id === user!.areaId)
@@ -35,18 +38,22 @@ export default function SignUp(){
         
         const formData = new FormData(e.currentTarget)
         
-        const formValues = {
-            firstName: formData.get('fName') as string,
-            lastName: formData.get('lName') as string,
+        const updatedUser = {
+            id: user!.id,
+            fname: formData.get('fName') as string,
+            lname: formData.get('lName') as string,
             email: formData.get('email') as string,
-            phoneNumber: phoneNumber,
-            dateOfBirth: formData.get('date_of_birth') as string,
-            // bootcamp_flag: bootCampFlag ? 1 : 0,
-            // bootcamp_option: bootCampFlag ? bootcampOption : "",
+            phone_number: phoneNumber,
+            date_of_birth: new Date(formData.get('date_of_birth') as string),
+            role: pfLevel,
+            churchId: user!.churchId,
+            areaId: user!.areaId,
+            picture: user!.picture,
+            active: user!.active,
             google_sub: user!.google_sub
         }
         
-        await updateUser(formValues)
+        await updateUser(updatedUser)
 
         if (!error) navigate('/') 
         
@@ -114,6 +121,22 @@ export default function SignUp(){
                         className={inputClass} 
                         />
                     </div>
+
+                    <div className="flex flex-col gap-2"> 
+                    <label htmlFor="PF_Level" className="text-sm font-medium text-gray-700">What level of Participation are you in pathfinders?</label>
+                    <select 
+                    id="PF_Level" 
+                    name="PF_Level" 
+                    className={inputClass}
+                    value={pfLevel}
+                    onChange={(e) => setPfLevel(e.target.value)}
+                    >
+                        <option value="">Select Option</option>
+                        {userLevel.map((option, index) => (
+                            <option key={index} value={option}>{option}</option>
+                        ))}
+                    </select>
+                    </div> 
                     
 
                    {/* <div className="flex flex-col gap-1 items-start">
