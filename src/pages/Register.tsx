@@ -26,6 +26,10 @@ export default function Register() {
   const [pastEvents, setPastEvents] = useState<number[]>([])
   const [certificationOption, setCertificationOption] = useState("")
   
+  // Page 3 drum equipment checkboxes (for certification types 14-17)
+  const [drumEquipmentCheck, setDrumEquipmentCheck] = useState(false)
+  const [drumRequirementCheck, setDrumRequirementCheck] = useState(false)
+  
   // Registration status
   const [successMessage, setSuccessMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
@@ -123,23 +127,74 @@ export default function Register() {
 
   return (
     //Form Object
-    <section className="p-4 flex flex-col bg-white rounded-xl md:max-w-md  gap-4 md:p-8 md:border md:border-gray-300 justify-center mx-auto ">
+    <section className="p-4 flex flex-col bg-white rounded-xl md:max-w-3xl  gap-4 md:p-8 md:border md:border-gray-300 justify-center mx-auto ">
 
       <form className="flex flex-col gap-5 md:p-4"> 
         { page === 1 &&
           <>
-            <h2 className="font-bold">Landing Page</h2>
-            <div className="flex gap-2">
-              <p>Leads to Sign up page with guide to bootcamp? the personal info one?</p>
-            </div>
+            <div className="flex flex-col gap-4">
+              <h2 className="text-2xl font-bold text-gray-900">Boot Camp Registration</h2>
+              
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-gray-700"><span className="font-semibold">Open to:</span> Pathfinder & Master Guide Ministries</p>
+                <p className="text-sm text-gray-700"><span className="font-semibold">Date:</span> Thursday, September 10 - Sunday, September 13, 2026</p>
+                <p className="text-sm text-gray-700"><span className="font-semibold">Location:</span> Lake Whitney Ranch, Farm to Market 2841, Clifton, TX 76634</p>
+              </div>
 
-            <div className="flex flex-col gap-1">
-                <p>Application flow, maybe an image?</p>
-            </div>
+              <div className="flex flex-col gap-3 border-t pt-4">
+                <h3 className="text-lg font-semibold text-gray-900">Drill Bootcamp</h3>
+                <p className="text-sm text-gray-700"><span className="font-semibold">Eligibility:</span> Participants must be high school age and up.</p>
+                <p className="text-sm text-gray-700"><span className="font-semibold">Available Tracks:</span> Drill Master, Color Guard, and Drill Leadership</p>
+                <p className="text-sm text-gray-700"><span className="font-semibold">Accommodations:</span> Camping only</p>
+              </div>
 
-            <div className="flex flex-col gap-1 items-start">
-                <label htmlFor="fName" className="text-sm font-medium text-black">I certify that I have fully read and understood the TX Youth Bootcamp Guide</label>
-                <input type="checkbox" name="guide_certification" id="guide_certification" checked={bootCampGuideVerify} onChange={(e) => {setIsButtonDisabled(!e.target.checked); setBootCampGuideVerify(e.target.checked)}} />
+              <div className="flex flex-col gap-3 border-t pt-4">
+                <h3 className="text-lg font-semibold text-gray-900">Drum Corps Bootcamp</h3>
+                <p className="text-sm text-gray-700"><span className="font-semibold">Eligibility:</span> Ages 10+</p>
+                <p className="text-sm text-gray-700"><span className="font-semibold">Available Tracks:</span> Drum: Beginner, Drum: Intermediate, Drum: Advanced, Texas Drum Corps (TXDC)</p>
+                <p className="text-sm text-gray-700"><span className="font-semibold">Accommodations:</span> Camping Only</p>
+              </div>
+
+              <div className="flex flex-col gap-3 bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                <p className="text-sm font-semibold text-gray-900">Note:</p>
+                <p className="text-sm text-gray-700">Drill Leadership and Texas Drum Corps are <span className="font-semibold">INVITE ONLY</span>. Applicants to drill leadership and TXDC who were not invited will be asked to resubmit their application.</p>
+              </div>
+
+              <div className="flex flex-col gap-3 border-t pt-4">
+                <p className="text-sm font-semibold text-gray-900">Bootcamp participation requires:</p>
+                <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1 ml-2">
+                  <li>Website sign up</li>
+                  <li>Certification Portfolio completion</li>
+                  <li>Approval of your candidacy through email/website</li>
+                  <li>Payment through YMMS</li>
+                </ol>
+                <p className="text-xs text-gray-600 italic">These steps must be complete in order.</p>
+              </div>
+
+              <div className="flex flex-col gap-3 border-t pt-4">
+                <p className="text-sm text-gray-900">
+                  To proceed, you <span className="font-semibold">MUST</span> have read the full informational document:{" "}
+                  <a 
+                    href="/path/to/TX-Youth-Bootcamp-Guide.pdf" 
+                    download="TX-Youth-Bootcamp-Guide.pdf"
+                    className="text-blue-600 hover:text-blue-800 underline font-medium"
+                  >
+                    TX Youth Bootcamp Guide
+                  </a>
+                </p>
+                
+                <label htmlFor="guide_certification" className="flex items-start gap-2 text-sm font-medium text-gray-900 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    name="guide_certification" 
+                    id="guide_certification" 
+                    checked={bootCampGuideVerify} 
+                    onChange={(e) => {setIsButtonDisabled(!e.target.checked); setBootCampGuideVerify(e.target.checked)}}
+                    className="mt-0.5 rounded border-gray-300"
+                  />
+                  <span>I certify that I have fully read and understood the TX Youth Bootcamp Guide</span>
+                </label>
+              </div>
             </div>
           </>
         }
@@ -193,14 +248,112 @@ export default function Register() {
           page === 3 && 
           <>
             <div className="flex flex-col gap-4">
-            <h2 className="text-xl font-semibold text-gray-900">Attendance Requirements</h2>
+              {/* Drill Certifications (9-13) */}
+              {["9", "10", "11", "12", "13"].includes(certificationOption) && (
+                <>
+                  <h2 className="text-xl font-semibold text-gray-900">Thank You!</h2>
+                  <p className="text-sm text-gray-700">
+                    Thank you for your interest in TX Youth Bootcamp 2026! Your next step is to complete your portfolio in the Certification Portfolio section. 
+                    If you have any questions, please send an email to{" "}
+                    <a href="mailto:txdrill@texaspathfinders.org" className="text-blue-600 hover:text-blue-800 underline">
+                      txdrill@texaspathfinders.org
+                    </a>
+                    , or contact either your area coordinator or area drill coordinator.
+                  </p>
+                </>
+              )}
 
-            <h2 className = 'text-xl font-semibold text-gray-900'>Requirements here</h2>
+              {/* Drum Certifications (14-17) */}
+              {["14", "15", "16", "17"].includes(certificationOption) && (
+                <>
+                  <h2 className="text-xl font-semibold text-gray-900">Thank You!</h2>
+                  <p className="text-sm text-gray-700">
+                    Thank you for your interest in TX Youth Bootcamp 2026! Your next step is to complete your portfolio in the Certification Portfolio section. 
+                    If you have any questions, please send an email to{" "}
+                    <a href="mailto:txdrill@texaspathfinders.org" className="text-blue-600 hover:text-blue-800 underline">
+                      txdrill@texaspathfinders.org
+                    </a>
+                    , or contact your area coordinator.
+                  </p>
 
-            <div className="flex flex-col gap-1 items-start">
-                <label htmlFor="fName" className="text-sm font-medium text-black">I certify that I have fully read and understood the TX Youth Bootcamp Guide</label>
-                <input type="checkbox" name="requirements_check" id="requirements_check" onChange={(e) => {setIsSubmitButtonDisabled(!e.target.checked)}} />
-            </div>
+                  <div className="flex flex-col gap-3 border-t pt-4">
+                    <p className="text-sm font-semibold text-gray-900">Please note the following are required for participation:</p>
+                    
+                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-2 ml-2">
+                      <li>
+                        Vic Firth Corpsmaster Signature Snare sticks -{" "}
+                        <a 
+                          href="https://www.amazon.com/Vic-Firth-Corpsmaster-Signature-SRH/dp/B072DWSFR9?ref_=ast_sto_dp&th=1" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline break-all"
+                        >
+                          View on Amazon
+                        </a>
+                      </li>
+                      <li>
+                        Drum Pad option A: cheaper. The accompanying sticks do NOT qualify for bootcamp -{" "}
+                        <a 
+                          href="https://www.amazon.com/Donner-Inches-Practice-Sticks-Blue/dp/B07W5P7SCZ/ref=sr_1_9?crid=1NV5KO6XU3T63&dib=eyJ2IjoiMSJ9.TKdcQ-He" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline break-all"
+                        >
+                          View on Amazon
+                        </a>
+                      </li>
+                      <li>
+                        Drum Pad option B: Better long term option, more expensive -{" "}
+                        <a 
+                          href="http://amazon.com/Evans-RealFeel-2-Sided-Practice-Pad/dp/B000FMDIXY/ref=sr_1_4?crid=1NV5KO6XU3T63&dib=eyJ2IjoiMSJ9.TKdcQ-Hev8cgyYFa14" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline break-all"
+                        >
+                          View on Amazon
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="flex flex-col gap-2 bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                    <p className="text-sm font-semibold text-gray-900">Important:</p>
+                    <p className="text-sm text-gray-700">Drums are required for intermediate, advanced, and TXDC. Drums are optional for beginner level if you have them.</p>
+                    <p className="text-sm font-semibold text-red-600">Drums will NOT be provided to anyone at any level.</p>
+                  </div>
+
+                  <div className="flex flex-col gap-3 border-t pt-4">
+                    <label htmlFor="drum_equipment_check" className="flex items-start gap-2 text-sm font-medium text-gray-900 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        name="drum_equipment_check" 
+                        id="drum_equipment_check" 
+                        checked={drumEquipmentCheck}
+                        onChange={(e) => setDrumEquipmentCheck(e.target.checked)}
+                        className="mt-0.5 rounded border-gray-300"
+                      />
+                      <span>I understand I am required to bring the sticks and drum pad linked above. I understand purchasing drum pad option A still requires me to buy the Vic Firth Corpsmaster Signature Snare sticks.</span>
+                    </label>
+
+                    <label htmlFor="drum_requirement_check" className="flex items-start gap-2 text-sm font-medium text-gray-900 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        name="drum_requirement_check" 
+                        id="drum_requirement_check" 
+                        checked={drumRequirementCheck}
+                        onChange={(e) => setDrumRequirementCheck(e.target.checked)}
+                        className="mt-0.5 rounded border-gray-300"
+                      />
+                      <span>I understand, if I want to be in the intermediate, advanced, or TXDC level, I need to provide my own drum.</span>
+                    </label>
+                  </div>
+                </>
+              )}
+
+              {/* Show message if no certification selected */}
+              {!certificationOption && (
+                <p className="text-sm text-gray-600 italic">Please select a certification option on the previous page to continue.</p>
+              )}
             </div>
           </>
 
@@ -242,7 +395,11 @@ export default function Register() {
       onClick={handleSubmit}
       variant="primary"
       className='w-full shadow-sm hover:shadow-md transition-all duration-200 py-3'
-      disabled={isSubmitButtonDisabled || isSubmitting}
+      disabled={
+        !certificationOption ||
+        (["14", "15", "16", "17"].includes(certificationOption) && (!drumEquipmentCheck || !drumRequirementCheck)) ||
+        isSubmitting
+      }
     >
       {isSubmitting ? 'Submitting...' : 'Submit'}
     </Button>
@@ -257,7 +414,10 @@ export default function Register() {
       }}
       variant="primary"
       className='w-full shadow-sm hover:shadow-md transition-all duration-200 py-3'
-      disabled ={isButtonDisabled}
+      disabled={
+        (page === 1 && isButtonDisabled) ||
+        (page === 2 && !certificationOption)
+      }
     >
       Next
     </Button>

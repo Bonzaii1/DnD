@@ -33,6 +33,12 @@ export default function Navbar() {
                         Register
                     </Link>
                     <Link 
+                        to="/progress" 
+                        className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                    >
+                        My Progress
+                    </Link>
+                    <Link 
                         to="/signup" 
                         className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
                     >
@@ -77,6 +83,13 @@ export default function Navbar() {
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Register
+                        </Link>
+                        <Link 
+                            to="/progress" 
+                            className="text-base font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            My Progress
                         </Link>
                         <Link 
                             to="/signup" 
