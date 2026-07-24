@@ -6,12 +6,9 @@ import { useChurch } from "@/hooks/useChurches"
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatPhoneNumber} from "@/utils/utils"
+import { USER_LEVELS } from "@/constants"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
-
-
-
-const userLevel = ["Pathfinder", "TLT", "Master Guide Candidate", "Invested Master Guide", "Staff / Volunteer", "Parent"]
 
 
 export default function SignUp(){
@@ -19,8 +16,6 @@ export default function SignUp(){
     const { user, loading, error, updateUser } = useAuth()
     const [phoneNumber, setPhoneNumber] = useState(user?.phone_number ? user?.phone_number : "")
     const [pfLevel, setPfLevel] = useState(user?.role || "")
-    // const [bootCampFlag, setBootCampFlag] = useState(user?.bootcamp_flag ? true : false)
-    // const [bootcampOption, setBootcampOption] = useState(user?.bootcamp_option || "")
     const { areas  } = useArea()
     const { churches } = useChurch(null)
 
@@ -132,7 +127,7 @@ export default function SignUp(){
                     onChange={(e) => setPfLevel(e.target.value)}
                     >
                         <option value="">Select Option</option>
-                        {userLevel.map((option, index) => (
+                        {USER_LEVELS.map((option, index) => (
                             <option key={index} value={option}>{option}</option>
                         ))}
                     </select>

@@ -3,11 +3,12 @@ import Login from '@/pages/Login'
 import RouteLayout from '@/layouts/RouteLayout'
 import { useAuth } from '@/hooks/useAuth'
 import SignUp from './pages/SignUp'
+import { USER_ACTIVE_STATUS } from './constants'
 
 
 function ProtectedRoute() {
   const { user } = useAuth()
-  return user ? (user.active === 1 ? <RouteLayout /> : <Navigate to="/signup" replace />) : <Navigate to="/login" replace />
+  return user ? (user.active === USER_ACTIVE_STATUS ? <RouteLayout /> : <Navigate to="/signup" replace />) : <Navigate to="/login" replace />
 }
 
 

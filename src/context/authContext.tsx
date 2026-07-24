@@ -57,28 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-
-    async function isRegistered(user: User){
-        if (!user) return false;
-        setLoading(true)
-        setError(null)
-        var result = false
-        try {
-            const response = await api.get<{isRegistered: boolean}>(`/api/user/isRegistered/${user.id}`)
-            result = response.isRegistered
-        } catch (err) {
-            setError(err instanceof ApiError ? err.message : String(err))
-            return false
-        } finally {
-            setLoading(false)
-            return result
-        }
-    }
-
     function logout() {
         setUser(null)
     }
 
-    return <AuthContext.Provider value={{ user, loading, error, login, logout, updateUser, isRegistered }}>{children}</AuthContext.Provider>
+    return <AuthContext.Provider value={{ user, loading, error, login, logout, updateUser }}>{children}</AuthContext.Provider>
 
 }

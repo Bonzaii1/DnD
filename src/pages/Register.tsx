@@ -1,12 +1,12 @@
 import Button from "@/components/ui/Button"
-//import { useState } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { useEventSeries } from "@/hooks/useEventSeries"
 import { useCertificationType } from "@/hooks/useCertifications"
 import { useState, useEffect } from "react"
 import { api } from "@/services/api"
-import { useNavigate } from "react-router-dom";
-//import { useRequirements } from "@/hooks/useRequirements"
+import { useNavigate } from "react-router-dom"
+import { registrationService } from "@/services/registration"
+import { ACTIVE_EVENT_ID, CURRENT_YEAR, isDrillCertification, isDrumCertification } from "@/constants"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
 
@@ -17,17 +17,17 @@ export default function Register() {
   const [page, setPage] = useState(1)
   const [bootCampGuideVerify, setBootCampGuideVerify] = useState(false)
   const [isButtonDisabled, setIsButtonDisabled] = useState(true)
-  const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true)
+  //const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true)
   const {eventSeries } = useEventSeries()
   const {certifications } = useCertificationType()
-  const {user, isRegistered} = useAuth()
+  const {user} = useAuth()
 
   const [isRegisteredFlag, setIsRegisteredFlag] = useState(false)
 
   useEffect(() => {
     async function checkRegistration() {
       if (user) {
-        const registered = await isRegistered(user)
+        const registered = await registrationService.checkIsRegistered(user.id)
         setIsRegisteredFlag(registered)
       }
     }
@@ -59,8 +59,8 @@ export default function Register() {
         pastEvents,
         certificationOption,
         userId: user!.id,
-        eventId: 6,
-        year: 2026
+        eventId: ACTIVE_EVENT_ID,
+        year: CURRENT_YEAR
       })
       
       console.log('Registration successful:', response)
@@ -85,7 +85,7 @@ export default function Register() {
         {isRegisteredFlag && (
           <div className="flex flex-col gap-4 p-6 rounded-lg bg-blue-50 border-2 border-blue-200">
             <div className="flex items-start gap-3">
-              <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-blue-600 shrink mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div className="flex flex-col gap-2">
@@ -226,8 +226,8 @@ export default function Register() {
           page === 3 && !isRegisteredFlag && 
           <>
             <div className="flex flex-col gap-4">
-              {/* Drill Certifications (9-13) */}
-              {["9", "10", "11", "12", "13"].includes(certificationOption) && (
+              {/* Drill Certifications */}
+              {isDrillCertification(certificationOption) && (
                 <>
                   <h2 className="text-xl font-semibold text-gray-900">Thank You!</h2>
                   <p className="text-sm text-gray-700">
@@ -241,8 +241,8 @@ export default function Register() {
                 </>
               )}
 
-              {/* Drum Certifications (14-17) */}
-              {["14", "15", "16", "17"].includes(certificationOption) && (
+              {/* Drum Certifications */}
+              {isDrumCertification(certificationOption) && (
                 <>
                   <h2 className="text-xl font-semibold text-gray-900">Thank You!</h2>
                   <p className="text-sm text-gray-700">
@@ -376,7 +376,7 @@ export default function Register() {
       className='w-full shadow-sm hover:shadow-md transition-all duration-200 py-3'
       disabled={
         !certificationOption ||
-        (["14", "15", "16", "17"].includes(certificationOption) && (!drumEquipmentCheck || !drumRequirementCheck)) ||
+        (isDrumCertification(certificationOption) && (!drumEquipmentCheck || !drumRequirementCheck)) ||
         isSubmitting
       }
     >

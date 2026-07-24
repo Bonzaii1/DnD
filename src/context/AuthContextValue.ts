@@ -12,9 +12,7 @@ export type User = {
     active: number
     churchId: number
     areaId: number
-    picture: string,
-    // bootcamp_flag: string,
-    // bootcamp_option: string
+    picture: string
     google_sub: string
 }
 
@@ -22,7 +20,6 @@ export type AuthContextType = {
     user: User | null
     loading: boolean
     error: string | null
-    isRegistered: (user: User) => Promise<boolean>
     updateUser: (user: User) => Promise<void>
     login: (res: CredentialResponse, signInKey: string) => Promise<void>
     logout: () => void
