@@ -12,7 +12,7 @@ export interface RequirementsPayload {
 
 const API_ROUTE = '/api/db'
 
-export const requirementRoutes = {
+export const requirementService = {
 
     updateRequirements: async (payload: RequirementsPayload) => {
         const form = new FormData()

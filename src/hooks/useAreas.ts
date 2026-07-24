@@ -1,5 +1,5 @@
 
-import { areaRoutes, Area } from "@/services/area";
+import { areaService, Area } from "@/services/area";
 import { useEffect, useState } from "react";
 
 interface useAreaReturn {
@@ -22,7 +22,7 @@ export function useArea(): useAreaReturn {
         setLoading(true)
         setError(null)
 
-        areaRoutes.getAreas()
+        areaService.getAreas()
             .then(data => setAreas(data ?? []))
             .catch(error => setError(error instanceof Error ? error.message : String(error)))
             .finally(() => setLoading(false))

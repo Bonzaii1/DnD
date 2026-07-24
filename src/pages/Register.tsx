@@ -7,6 +7,7 @@ import { api } from "@/services/api"
 import { useNavigate } from "react-router-dom"
 import { registrationService } from "@/services/registration"
 import { ACTIVE_EVENT_ID, CURRENT_YEAR, isDrillCertification, isDrumCertification } from "@/constants"
+import ErrorMessage from "@/components/ui/ErrorMessage"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
 
@@ -346,11 +347,7 @@ export default function Register() {
         </div>
       )}
       
-      {errorMessage && (
-        <div className="p-4 rounded-md bg-red-50 border border-red-200">
-          <p className="text-sm text-red-800">{errorMessage}</p>
-        </div>
-      )}
+      <ErrorMessage error={errorMessage} size="md" className="mb-4" />
 
       {!isRegisteredFlag && (
       <div className="flex gap-3">

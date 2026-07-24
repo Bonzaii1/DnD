@@ -1,5 +1,5 @@
 
-import { certificationRoutes, CertificationType } from "@/services/certification";
+import { certificationService, CertificationType } from "@/services/certification";
 import { useEffect, useState } from "react";
 
 interface useCertificationTypeReturn {
@@ -22,7 +22,7 @@ export function useCertificationType(): useCertificationTypeReturn {
         setLoading(true)
         setError(null)
 
-        certificationRoutes.getCertificationTypes()
+        certificationService.getCertificationTypes()
             .then(data => setCertifications(data ?? []))
             .catch(error => setError(error instanceof Error ? error.message : String(error)))
             .finally(() => setLoading(false))

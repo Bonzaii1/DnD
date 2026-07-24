@@ -1,4 +1,4 @@
-import { Church, churchRoutes } from "@/services/church";
+import { Church, churchService } from "@/services/church";
 import { useEffect, useState } from "react";
 
 
@@ -27,8 +27,8 @@ export function useChurch(areaIdInit: number | null): useChurchReturn {
         setError(null)
 
         const request = areaId !== null
-            ? churchRoutes.getChurchByAreaId(areaId)
-            : churchRoutes.getChurches()
+            ? churchService.getChurchByAreaId(areaId)
+            : churchService.getChurches()
 
         request
             .then(data => setChurches(data))

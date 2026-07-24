@@ -19,7 +19,7 @@ export interface AreaPayload {
 
 const API_ROUTE = '/api/db'
 
-export const areaRoutes = {
+export const areaService = {
 
     getAreas: async (): Promise<Area[]> => {
         return api.get<Area[]>(API_ROUTE + '/areas')

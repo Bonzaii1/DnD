@@ -69,8 +69,8 @@ export default function Login() {
               </div>
             )
               }
-              {loading && <p className='text-xs text-gray-500'>Loading...</p>}
-              {error && <p className='text-xs text-red-600'>{error}</p>}
+              {loading && <LoadingSpinner size="sm" className="py-2" />}
+              <ErrorMessage error={error} />
           </div>
         </div>
       </div>

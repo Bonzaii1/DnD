@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { api } from "@/services/api"
 import Button from "@/components/ui/Button"
+import LoadingSpinner from "@/components/ui/LoadingSpinner"
+import ErrorMessage from "@/components/ui/ErrorMessage"
 import ReactMarkdown from 'react-markdown'
 
 type CertificationRequirement = {
@@ -135,13 +137,13 @@ export default function CertificationProgress() {
 
         {loading && (
           <div className="text-center py-12">
-            <p className="text-gray-500">Loading your certifications...</p>
+            <LoadingSpinner size="lg" />
           </div>
         )}
 
         {error && (
-          <div className="p-4 rounded-md bg-red-50 border border-red-200 mb-6">
-            <p className="text-sm text-red-800">{error}</p>
+          <div className="mb-6">
+            <ErrorMessage error={error} size="md" />
           </div>
         )}
 

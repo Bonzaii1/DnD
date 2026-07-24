@@ -7,6 +7,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatPhoneNumber} from "@/utils/utils"
 import { USER_LEVELS } from "@/constants"
+import LoadingSpinner from "@/components/ui/LoadingSpinner"
+import ErrorMessage from "@/components/ui/ErrorMessage"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
 
@@ -159,8 +161,8 @@ export default function SignUp(){
                    
              </form>
 
-               {loading && <p className='text-xs text-gray-500'>Loading...</p>}
-               {error && <p className='text-xs text-red-600'>{error}</p>}
+               {loading && <LoadingSpinner size="sm" className="py-2" />}
+               <ErrorMessage error={error} />
 
                
              

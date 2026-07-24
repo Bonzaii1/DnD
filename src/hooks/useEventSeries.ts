@@ -1,5 +1,5 @@
 
-import { eventSeriesRoutes, EventSeries } from "@/services/eventSeries";
+import { eventSeriesService, EventSeries } from "@/services/eventSeries";
 import { useEffect, useState } from "react";
 
 interface useEventSeriesReturn {
@@ -22,7 +22,7 @@ export function useEventSeries(): useEventSeriesReturn {
         setLoading(true)
         setError(null)
 
-        eventSeriesRoutes.getEventSeries()
+        eventSeriesService.getEventSeries()
             .then(data => setEventSeries(data ?? []))
             .catch(error => setError(error instanceof Error ? error.message : String(error)))
             .finally(() => setLoading(false))

@@ -10,7 +10,7 @@ export interface EventSeries {
 
 const API_ROUTE = '/api/db'
 
-export const eventSeriesRoutes = {
+export const eventSeriesService = {
 
     getEventSeries: async (): Promise<EventSeries[]> => {
         return api.get<EventSeries[]>(API_ROUTE + '/eventSeries')

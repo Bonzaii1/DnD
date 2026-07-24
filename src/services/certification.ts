@@ -10,7 +10,7 @@ export interface CertificationType {
 
 const API_ROUTE = '/api/db'
 
-export const certificationRoutes = {
+export const certificationService = {
 
     getCertificationTypes: async (): Promise<CertificationType[]> => {
         return api.get<CertificationType[]>(API_ROUTE + '/certificationTypes')

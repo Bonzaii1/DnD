@@ -1,4 +1,4 @@
-import { requirementRoutes, RequirementsPayload } from "@/services/requirements";
+import { requirementService, RequirementsPayload } from "@/services/requirements";
 import { useState } from "react";
 
 
@@ -18,7 +18,7 @@ export function useRequirements(): useRequirementsReturn {
 
     async function update(payload: RequirementsPayload) {
         setLoading(true)
-        const res = await requirementRoutes.updateRequirements(payload)
+        const res = await requirementService.updateRequirements(payload)
 
         setResMessage(res)
         setLoading(false)
