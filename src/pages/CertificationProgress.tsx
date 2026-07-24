@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { api } from "@/services/api"
-import Navbar from "@/components/ui/Navbar"
 import Button from "@/components/ui/Button"
+import ReactMarkdown from 'react-markdown'
 
 type CertificationRequirement = {
   id: number
@@ -10,6 +10,8 @@ type CertificationRequirement = {
   description: string
   required: boolean
   sort_order: number
+  requirement_type: 'File' | 'AutoApprove'
+  required_for_reg: boolean
 }
 
 type UserRequirementStatus = {
@@ -34,6 +36,7 @@ type UserCertification = {
   started_at: string
   completed_at: string | null
   verified_at: string | null
+  year: number
   requirements: UserRequirementStatus[]
 }
 
@@ -43,6 +46,29 @@ export default function CertificationProgress() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [expandedCert, setExpandedCert] = useState<number | null>(null)
+  const [descriptionModal, setDescriptionModal] = useState<{ name: string, description: string } | null>(null)
+  const [showModal, setShowModal] = useState(false)
+
+  // Trigger opening animation when modal opens
+  useEffect(() => {
+    if (descriptionModal) {
+      // Start animation after a brief delay to ensure transition works
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setShowModal(true)
+        })
+      })
+    } else {
+      setShowModal(false)
+    }
+  }, [descriptionModal])
+
+  function closeModal() {
+    setShowModal(false)
+    setTimeout(() => {
+      setDescriptionModal(null)
+    }, 200)
+  }
 
   useEffect(() => {
     if (user?.id) {
@@ -145,7 +171,7 @@ export default function CertificationProgress() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h2 className="text-xl font-semibold text-gray-900">
-                            {cert.certificationTypeName}
+                            {cert.certificationTypeName} {cert.year && `(${cert.year})`}
                           </h2>
                           <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(cert.status)}`}>
                             {cert.status.replace('_', ' ').toUpperCase()}
@@ -201,31 +227,53 @@ export default function CertificationProgress() {
                         <p className="text-gray-500 text-sm">No requirements defined for this certification yet.</p>
                       ) : (
                         <div className="space-y-3">
-                          {cert.requirements.map((req) => (
+                          {cert.requirements.map((req) => {
+                            const isDisabled = !req.requirement.required_for_reg
+                            const isAutoApprove = req.requirement.requirement_type === 'AutoApprove'
+                            
+                            return (
                             <div 
                               key={req.id} 
-                              className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-sm transition-shadow"
+                              className={`bg-white rounded-lg p-4 border border-gray-200 hover:shadow-sm transition-shadow ${
+                                isDisabled ? 'opacity-50' : ''
+                              }`}
                             >
                               <div className="flex items-start gap-3">
-                                <span className="text-2xl mt-1">{getStatusIcon(req.status)}</span>
+                                <span className="text-2xl mt-1">{getStatusIcon(isAutoApprove ? 'approved' : req.status)}</span>
                                 
                                 <div className="flex-1">
                                   <div className="flex items-start justify-between mb-1">
-                                    <h4 className="font-medium text-gray-900">
-                                      {req.requirement.name}
-                                      {req.requirement.required && (
-                                        <span className="text-red-500 ml-1">*</span>
+                                    <div className="flex items-center gap-2">
+                                      <h4 className="font-medium text-gray-900">
+                                        {req.requirement.name}
+                                        {req.requirement.required && (
+                                          <span className="text-red-500 ml-1">*</span>
+                                        )}
+                                        {isDisabled && (
+                                          <span className="text-gray-500 ml-2 text-xs">(Not required for registration)</span>
+                                        )}
+                                      </h4>
+                                      {req.requirement.description && (
+                                        <button
+                                          onClick={() => setDescriptionModal({ name: req.requirement.name, description: req.requirement.description })}
+                                          className="text-blue-500 hover:text-blue-700 transition-colors"
+                                          aria-label="View description"
+                                        >
+                                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                          </svg>
+                                        </button>
                                       )}
-                                    </h4>
-                                    <span className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(req.status)}`}>
-                                      {req.status.replace('_', ' ')}
+                                    </div>
+                                    <span className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(isAutoApprove ? 'approved' : req.status)}`}>
+                                      {isAutoApprove ? 'auto approved' : req.status.replace('_', ' ')}
                                     </span>
                                   </div>
-                                  
-                                  {req.requirement.description && (
-                                    <p className="text-sm text-gray-600 mb-2">
-                                      {req.requirement.description}
-                                    </p>
+
+                                  {isAutoApprove && (
+                                    <div className="bg-green-50 border border-green-200 rounded p-2 mb-2">
+                                      <p className="text-sm text-green-800">✓ This requirement is automatically approved</p>
+                                    </div>
                                   )}
 
                                   {req.notes && (
@@ -253,19 +301,21 @@ export default function CertificationProgress() {
                                     )}
                                   </div>
 
-                                  {req.status === 'not_started' && (
+                                  {req.status === 'not_started' && !isAutoApprove && req.requirement.requirement_type === 'File' && (
                                     <Button 
                                       variant="primary" 
                                       className="mt-3 text-xs py-1 px-3"
                                       onClick={() => {/* TODO: Open upload modal */}}
+                                      disabled={isDisabled}
                                     >
-                                      Submit Requirement
+                                      Upload File
                                     </Button>
                                   )}
                                 </div>
                               </div>
                             </div>
-                          ))}
+                          )
+                          })}
                         </div>
                       )}
                     </div>
@@ -276,7 +326,47 @@ export default function CertificationProgress() {
           </div>
         )}
       </section>
-    
+
+      {/* Description Modal */}
+      {descriptionModal && (
+        <div 
+          className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-opacity duration-200 ${
+            showModal ? 'opacity-100' : 'opacity-0'
+          }`} 
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} 
+          onClick={closeModal}
+        >
+          <div 
+            className={`bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col transition-all duration-200 ${
+              showModal ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+            }`} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between p-6 pb-4 shrink-0">
+              <h3 className="text-lg font-semibold text-gray-900">{descriptionModal.name}</h3>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors ml-4"
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="text-gray-700 prose prose-sm max-w-none px-6 overflow-y-auto flex-1">
+              <ReactMarkdown>
+                {descriptionModal.description}
+              </ReactMarkdown>
+            </div>
+            <div className="p-6 pt-4 flex justify-end shrink-0">
+              <Button variant="primary" onClick={closeModal}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

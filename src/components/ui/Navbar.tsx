@@ -1,9 +1,18 @@
 
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const { logout } = useAuth()
+    const navigate = useNavigate()
+
+    const handleLogout = () => {
+        logout()
+        navigate('/login')
+        setIsMenuOpen(false)
+    }
 
     // Prevent body scroll when menu is open
     useEffect(() => {
@@ -44,6 +53,12 @@ export default function Navbar() {
                     >
                         Edit Account
                     </Link>
+                    <button
+                        onClick={handleLogout}
+                        className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                    >
+                        Logout
+                    </button>
                 </div>
 
                 {/* Hamburger Button - right side on mobile */}
@@ -98,6 +113,12 @@ export default function Navbar() {
                         >
                             Edit Account
                         </Link>
+                        <button
+                            onClick={handleLogout}
+                            className="text-base font-medium text-red-600 hover:text-red-700 transition-colors text-left"
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
             </>

@@ -42,7 +42,7 @@ export default function Login() {
               <GoogleLogin
                 onSuccess={async (credentialRes) => {
                   await login(credentialRes, signInKey)
-                  navigate('/')
+                  navigate('/register')
                 }}
                 onError={() => {
                   console.log('Login Failed')

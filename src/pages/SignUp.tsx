@@ -55,7 +55,7 @@ export default function SignUp(){
         
         await updateUser(updatedUser)
 
-        if (!error) navigate('/') 
+        if (!error) navigate('/register') 
         
     }
 

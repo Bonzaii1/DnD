@@ -18,21 +18,11 @@ export type User = {
     google_sub: string
 }
 
-export type userObj = {
-    firstName: string,
-    lastName: string,
-    email: string,
-    phoneNumber: string,
-    dateOfBirth: string,
-    // bootcamp_flag: number,
-    // bootcamp_option: string,
-    google_sub: string
-}
-
 export type AuthContextType = {
     user: User | null
     loading: boolean
     error: string | null
+    isRegistered: (user: User) => Promise<boolean>
     updateUser: (user: User) => Promise<void>
     login: (res: CredentialResponse, signInKey: string) => Promise<void>
     logout: () => void

@@ -3,8 +3,9 @@ import Button from "@/components/ui/Button"
 import { useAuth } from "@/hooks/useAuth"
 import { useEventSeries } from "@/hooks/useEventSeries"
 import { useCertificationType } from "@/hooks/useCertifications"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { api } from "@/services/api"
+import { useNavigate } from "react-router-dom";
 //import { useRequirements } from "@/hooks/useRequirements"
 
 const inputClass = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
@@ -19,8 +20,20 @@ export default function Register() {
   const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true)
   const {eventSeries } = useEventSeries()
   const {certifications } = useCertificationType()
-  const {user} = useAuth()
-  
+  const {user, isRegistered} = useAuth()
+
+  const [isRegisteredFlag, setIsRegisteredFlag] = useState(false)
+
+  useEffect(() => {
+    async function checkRegistration() {
+      if (user) {
+        const registered = await isRegistered(user)
+        setIsRegisteredFlag(registered)
+      }
+    }
+    checkRegistration()
+  }, [user])
+
   // Page 2 form values
   
   const [pastEvents, setPastEvents] = useState<number[]>([])
@@ -34,70 +47,7 @@ export default function Register() {
   const [successMessage, setSuccessMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  // //const [selectedArea, setSelectedArea] = useState(0)
-  // //const [selectedChurch, setSelectedChurch] = useState("")
-  // const { loading, error, uploadResult, uploadPayload } = useDrive("1aPBBTgcfqSu0TutoAIp0tmwKe3ONg9SH")
-  // const { areas, loading: areaLoading } = useArea()
-  // const { churches, loading: churchLoading } = useChurch(null)
-  // const { user } = useAuth()
-  // const userChurch = churches.find(church => church.id === user!.churchId)
-  // //const { resMessage, update } = useRequirements()
-
-
-
-  // // async function handleAreaChange(e: React.ChangeEvent<HTMLSelectElement>) {
-  // //   e.preventDefault()
-  // //   const id = Number(e.target.value)
-  // //   getByArea(id)
-  // // }
-
-
-  // async function handleFormSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
-
-  //   e.preventDefault()
-
-  //   const data = new FormData(e.currentTarget)
-
-  //   const fname = user!.fname
-  //   const lname = user!.lname
-  //   const areaId = user!.areaId
-  //   const churchId = user!.churchId
-
-  //   const area = areas.find(area => area.id === areaId)
-  //   const church = churches.find(church => church.id === churchId)
-
-  //   const recordCard = data.get('RecordCard') as File | null
-  //   const entranceEssay = data.get('EntranceEssay') as File | null
-  //   const notes = data.get('Notes') as File | null
-  //   const recommendation = data.get('Recommendation') as File | null
-
-  //   console.log(recordCard)
-
-  //   console.log(notes)
-
-  //   const payload = {
-  //     "fname": fname,
-  //     "lname": lname,
-  //     "recordCard": recordCard,
-  //     "entranceEssay": entranceEssay,
-  //     "notes": notes,
-  //     "recommendation": recommendation
-  //   }
-  //   {
-  //     // const payloadRequirements = {
-  //     //   "recordCard": recordCard?.name ? 1 : 0,
-  //     //   "entranceEssay": entranceEssay?.name ? 1 : 0,
-  //     //   "notes": notes?.name ? 1 : 0,
-  //     //   "recommendation": recommendation?.name ? 1 : 0,
-  //     //   "userId": 1
-  //     // }
-
-  //     await uploadPayload(payload, `Source Folder/${area?.name}/${church?.name} ${church?.cname}`)
-  //     //await update(payloadRequirements)
-
-  //   }
-  // }
-
+  const navigate = useNavigate()
 
   async function handleSubmit(){
     setIsSubmitting(true)
@@ -109,13 +59,14 @@ export default function Register() {
         pastEvents,
         certificationOption,
         userId: user!.id,
-        eventId: 6
+        eventId: 6,
+        year: 2026
       })
       
       console.log('Registration successful:', response)
       setSuccessMessage("Registration successful! Your certification application has been submitted.")
       // Optionally reset form or redirect after a delay
-      // setTimeout(() => navigate('/'), 2000)
+      setTimeout(() => navigate('/progress'), 2000)
     } catch (error: any) {
       console.error('Registration failed:', error)
       setErrorMessage(error?.message || "Registration failed. Please try again.")
@@ -130,7 +81,34 @@ export default function Register() {
     <section className="p-4 flex flex-col bg-white rounded-xl md:max-w-3xl  gap-4 md:p-8 md:border md:border-gray-300 justify-center mx-auto ">
 
       <form className="flex flex-col gap-5 md:p-4"> 
-        { page === 1 &&
+
+        {isRegisteredFlag && (
+          <div className="flex flex-col gap-4 p-6 rounded-lg bg-blue-50 border-2 border-blue-200">
+            <div className="flex items-start gap-3">
+              <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex flex-col gap-2">
+                <h2 className="text-xl font-bold text-blue-900">Already Registered</h2>
+                <p className="text-sm text-blue-800">
+                  You are already registered! You do not need to register again.
+                </p>
+                <p className="text-sm text-blue-800">
+                  Please check your email for further instructions or visit the Certification Progress page to track your application status.
+                </p>
+                <Button 
+                  onClick={() => navigate('/progress')}
+                  variant="primary"
+                  className="mt-3 w-fit"
+                >
+                  Go to Certification Progress
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        { page === 1 && !isRegisteredFlag &&
           <>
             <div className="flex flex-col gap-4">
               <h2 className="text-2xl font-bold text-gray-900">Boot Camp Registration</h2>
@@ -199,7 +177,7 @@ export default function Register() {
           </>
         }
         {
-          page === 2 && 
+          page === 2 && !isRegisteredFlag && 
           <>
 
             <div className="flex flex-col gap-2">
@@ -245,7 +223,7 @@ export default function Register() {
 
         }
         {
-          page === 3 && 
+          page === 3 && !isRegisteredFlag && 
           <>
             <div className="flex flex-col gap-4">
               {/* Drill Certifications (9-13) */}
@@ -374,6 +352,7 @@ export default function Register() {
         </div>
       )}
 
+      {!isRegisteredFlag && (
       <div className="flex gap-3">
         <Button 
       onClick={() => {
@@ -424,7 +403,7 @@ export default function Register() {
 
     }
       </div>
-      
+      )}
 
 
 
