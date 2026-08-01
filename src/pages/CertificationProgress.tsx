@@ -1,10 +1,24 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { api } from "@/services/api"
+import { useDrive } from "@/hooks/useDrive"
+import { areaService } from "@/services/area"
+import { churchService } from "@/services/church"
 import Button from "@/components/ui/Button"
 import LoadingSpinner from "@/components/ui/LoadingSpinner"
 import ErrorMessage from "@/components/ui/ErrorMessage"
 import ReactMarkdown from 'react-markdown'
+
+function sanitizePathSegment(value: string) {
+  return value.trim().replace(/[\\/]/g, '-')
+}
+
+function buildRequirementFileName(fname: string, lname: string, requirementName: string, originalName: string) {
+  const extMatch = originalName.match(/\.[^./\\]+$/)
+  const ext = extMatch ? extMatch[0] : ''
+  const slug = (value: string) => value.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '')
+  return `${slug(fname)}_${slug(lname)}_${slug(requirementName)}${ext}`
+}
 
 type CertificationRequirement = {
   id: number
@@ -51,6 +65,14 @@ export default function CertificationProgress() {
   const [descriptionModal, setDescriptionModal] = useState<{ name: string, description: string } | null>(null)
   const [showModal, setShowModal] = useState(false)
 
+  const { upload } = useDrive()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [areaName, setAreaName] = useState("")
+  const [churchName, setChurchName] = useState("")
+  const [activeUploadReq, setActiveUploadReq] = useState<UserRequirementStatus | null>(null)
+  const [uploadingReqId, setUploadingReqId] = useState<number | null>(null)
+  const [uploadErrors, setUploadErrors] = useState<Record<number, string>>({})
+
   // Trigger opening animation when modal opens
   useEffect(() => {
     if (descriptionModal) {
@@ -77,6 +99,54 @@ export default function CertificationProgress() {
       fetchCertificationProgress()
     }
   }, [user])
+
+  useEffect(() => {
+    if (user?.areaId) {
+      areaService.getAreaById(String(user.areaId))
+        .then(area => setAreaName(area.name))
+        .catch(() => setAreaName(""))
+    }
+  }, [user?.areaId])
+
+  useEffect(() => {
+    if (user?.churchId) {
+      churchService.getChurchById(user.churchId)
+        .then(church => setChurchName(church.name))
+        .catch(() => setChurchName(""))
+    }
+  }, [user?.churchId])
+
+  function triggerUpload(req: UserRequirementStatus) {
+    setUploadErrors(prev => ({ ...prev, [req.id]: "" }))
+    setActiveUploadReq(req)
+    requestAnimationFrame(() => fileInputRef.current?.click())
+  }
+
+  async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    const req = activeUploadReq
+    e.target.value = ""
+
+    if (!file || !req || !user) return
+
+    setUploadingReqId(req.id)
+    setUploadErrors(prev => ({ ...prev, [req.id]: "" }))
+
+    try {
+      const fileName = buildRequirementFileName(user.fname, user.lname, req.requirement.name, file.name)
+      const renamedFile = new File([file], fileName, { type: file.type })
+      const folderPath = `${sanitizePathSegment(areaName)}/${sanitizePathSegment(churchName)}`
+
+      await upload(renamedFile, folderPath, true)
+      await fetchCertificationProgress()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed"
+      setUploadErrors(prev => ({ ...prev, [req.id]: message }))
+    } finally {
+      setUploadingReqId(null)
+      setActiveUploadReq(null)
+    }
+  }
 
   async function fetchCertificationProgress() {
     try {
@@ -128,6 +198,13 @@ export default function CertificationProgress() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f5f8ff] text-gray-900 antialiased">
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleFileSelected}
+      />
 
       <section className="mx-auto w-full max-w-5xl flex-1 px-6 py-8">
         <div className="mb-6">
@@ -304,14 +381,19 @@ export default function CertificationProgress() {
                                   </div>
 
                                   {req.status === 'not_started' && !isAutoApprove && req.requirement.requirement_type === 'File' && (
-                                    <Button 
-                                      variant="primary" 
-                                      className="mt-3 text-xs py-1 px-3"
-                                      onClick={() => {/* TODO: Open upload modal */}}
-                                      disabled={isDisabled}
-                                    >
-                                      Upload File
-                                    </Button>
+                                    <>
+                                      <Button
+                                        variant="primary"
+                                        className="mt-3 text-xs py-1 px-3"
+                                        onClick={() => triggerUpload(req)}
+                                        disabled={isDisabled || uploadingReqId === req.id || !areaName || !churchName}
+                                      >
+                                        {uploadingReqId === req.id ? 'Uploading...' : 'Upload File'}
+                                      </Button>
+                                      {uploadErrors[req.id] && (
+                                        <p className="text-xs text-red-600 mt-1">{uploadErrors[req.id]}</p>
+                                      )}
+                                    </>
                                   )}
                                 </div>
                               </div>
