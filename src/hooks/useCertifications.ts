@@ -1,33 +1,24 @@
 
-import { certificationService, CertificationType } from "@/services/certification";
-import { useEffect, useState } from "react";
+import { useQuery } from '@tanstack/react-query'
+import { certificationService, CertificationType } from "@/services/certification"
 
 interface useCertificationTypeReturn {
-    certifications: CertificationType[],
-    loading: boolean,
-    error: string | null,
+    certifications: CertificationType[]
+    loading: boolean
+    error: string | null
     refresh: () => void
 }
 
-
 export function useCertificationType(): useCertificationTypeReturn {
-    const [certifications, setCertifications] = useState<CertificationType[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-    const [tick, setTick] = useState(0)
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ['certifications'],
+        queryFn: certificationService.getCertificationTypes
+    })
 
-
-    useEffect(() => {
-
-        setLoading(true)
-        setError(null)
-
-        certificationService.getCertificationTypes()
-            .then(data => setCertifications(data ?? []))
-            .catch(error => setError(error instanceof Error ? error.message : String(error)))
-            .finally(() => setLoading(false))
-    }, [tick])
-
-
-    return { certifications, loading, error, refresh: () => setTick(t => t + 1) }
+    return {
+        certifications: data ?? [],
+        loading: isLoading,
+        error: error ? (error instanceof Error ? error.message : String(error)) : null,
+        refresh: () => { refetch() }
+    }
 }

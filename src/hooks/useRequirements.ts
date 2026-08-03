@@ -1,30 +1,24 @@
-import { requirementService, RequirementsPayload } from "@/services/requirements";
-import { useState } from "react";
-
-
+import { useMutation } from '@tanstack/react-query'
+import { requirementService, RequirementsPayload } from "@/services/requirements"
 
 interface useRequirementsReturn {
-    resMessage: string | null,
-    update: (payload: RequirementsPayload) => Promise<void>,
+    resMessage: string | null
+    update: (payload: RequirementsPayload) => Promise<void>
     loading: boolean
 }
 
-
 export function useRequirements(): useRequirementsReturn {
-
-    const [resMessage, setResMessage] = useState<string | null>(null)
-    const [loading, setLoading] = useState<boolean>(true)
-
+    const mutation = useMutation({
+        mutationFn: requirementService.updateRequirements
+    })
 
     async function update(payload: RequirementsPayload) {
-        setLoading(true)
-        const res = await requirementService.updateRequirements(payload)
-
-        setResMessage(res)
-        setLoading(false)
-
+        await mutation.mutateAsync(payload)
     }
 
-    return { resMessage, update, loading }
-
+    return {
+        resMessage: mutation.data ?? null,
+        update,
+        loading: mutation.isPending
+    }
 }

@@ -6,17 +6,20 @@ import App from './App'
 import './index.css'
 import './i18n'
 import { AuthProvider } from './context/authContext'
+import { QueryProvider } from './providers/QueryProvider'
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={clientId}>
-      <BrowserRouter>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </BrowserRouter>
-    </GoogleOAuthProvider>
+    <QueryProvider>
+      <GoogleOAuthProvider clientId={clientId}>
+        <BrowserRouter>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </BrowserRouter>
+      </GoogleOAuthProvider>
+    </QueryProvider>
   </StrictMode>,
 )

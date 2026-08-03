@@ -1,33 +1,24 @@
 
-import { eventSeriesService, EventSeries } from "@/services/eventSeries";
-import { useEffect, useState } from "react";
+import { useQuery } from '@tanstack/react-query'
+import { eventSeriesService, EventSeries } from "@/services/eventSeries"
 
 interface useEventSeriesReturn {
-    eventSeries: EventSeries[],
-    loading: boolean,
-    error: string | null,
+    eventSeries: EventSeries[]
+    loading: boolean
+    error: string | null
     refresh: () => void
 }
 
-
 export function useEventSeries(): useEventSeriesReturn {
-    const [eventSeries, setEventSeries] = useState<EventSeries[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-    const [tick, setTick] = useState(0)
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ['eventSeries'],
+        queryFn: eventSeriesService.getEventSeries
+    })
 
-
-    useEffect(() => {
-
-        setLoading(true)
-        setError(null)
-
-        eventSeriesService.getEventSeries()
-            .then(data => setEventSeries(data ?? []))
-            .catch(error => setError(error instanceof Error ? error.message : String(error)))
-            .finally(() => setLoading(false))
-    }, [tick])
-
-
-    return { eventSeries, loading, error, refresh: () => setTick(t => t + 1) }
+    return {
+        eventSeries: data ?? [],
+        loading: isLoading,
+        error: error ? (error instanceof Error ? error.message : String(error)) : null,
+        refresh: () => { refetch() }
+    }
 }

@@ -1,16 +1,28 @@
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/hooks/useAuth'
 import Button from '@/components/ui/Button'
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import ErrorMessage from '@/components/ui/ErrorMessage'
+import { ROUTES } from '@/routes'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { login, loading, error } = useAuth()
+  const [searchParams] = useSearchParams()
+  const { login, loading, error, user } = useAuth()
   const [isSignIn, setIsSignIn] = useState(false)
   const [signInKey, setSignInKey] = useState("")
   const { t, i18n } = useTranslation()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      const returnTo = searchParams.get('returnTo') || ROUTES.HOME
+      navigate(returnTo, { replace: true })
+    }
+  }, [user, navigate, searchParams])
 
   function handleSignInClick() {
     setIsSignIn(!isSignIn)
@@ -20,6 +32,12 @@ export default function Login() {
     const newLang = i18n.language === 'en' ? 'es' : 'en'
     i18n.changeLanguage(newLang)
     localStorage.setItem('language', newLang)
+  }
+
+  async function handleLoginSuccess(credentialRes: any) {
+    await login(credentialRes, signInKey)
+    const returnTo = searchParams.get('returnTo') || ROUTES.REGISTER
+    navigate(returnTo)
   }
 
   return (
@@ -40,10 +58,7 @@ export default function Login() {
           <div className='flex flex-col gap-4 md:gap-5 items-stretch w-full md:w-auto md:min-w-60'>
             <div className='rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200'>
               <GoogleLogin
-                onSuccess={async (credentialRes) => {
-                  await login(credentialRes, signInKey)
-                  navigate('/register')
-                }}
+                onSuccess={handleLoginSuccess}
                 onError={() => {
                   console.log('Login Failed')
                 }}
