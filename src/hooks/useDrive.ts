@@ -6,7 +6,7 @@ interface UseDriveReturn {
     loading: boolean
     error: string | null
     uploadResult: UploadResponse | null
-    upload: (file: File, folderPath?: string, createIfMissing?: boolean) => Promise<DriveFile>
+    upload: (file: File, folderPath?: string, createIfMissing?: boolean, userReqId?:number) => Promise<DriveFile>
     uploadPayload: (payload: Payload, folderPath?: string) => Promise<void>
     refresh: () => void
 }
@@ -28,11 +28,11 @@ export function useDrive(folderId?: string): UseDriveReturn {
             .finally(() => setLoading(false))
     }, [folderId, tick])
 
-    async function upload(file: File, folderPath?: string, createIfMissing = true) {
+    async function upload(file: File, folderPath?: string, createIfMissing = true, userReqId?: number) {
         setLoading(true)
         setError(null)
         try {
-            const driveFile = await googleDrive.uploadFile(file, folderPath, createIfMissing)
+            const driveFile = await googleDrive.uploadFile(file, folderPath, createIfMissing, userReqId)
             setTick(t => t + 1)
             return driveFile
         } catch (e) {

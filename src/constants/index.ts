@@ -64,3 +64,5 @@ export const USER_LEVELS = [
 ] as const
 
 export type UserLevel = typeof USER_LEVELS[number]
+
+export const base_drive_path = 'Source Folder'

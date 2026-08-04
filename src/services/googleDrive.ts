@@ -43,12 +43,13 @@ export const googleDrive = {
         return api.get<DriveFileList>(`/api/drive/files?${params}`)
     },
 
-    uploadFile: async (file: File, folderPath?: string, createIfMissing = false): Promise<DriveFile> => {
+    uploadFile: async (file: File, folderPath?: string, createIfMissing = false, userReqId?:number): Promise<DriveFile> => {
         const form = new FormData()
         form.append('file', file)
         if (folderPath) {
             form.append('folderPath', folderPath)
             form.append('createIfMissing', String(createIfMissing))
+            form.append('userReqId', String(userReqId))
         }
         const r = await fetch(`${BASE_URL}/api/drive/upload`, { method: 'POST', body: form })
         if (!r.ok) throw new Error(`Upload failed: ${r.statusText}`)

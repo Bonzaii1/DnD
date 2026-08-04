@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button"
 import LoadingSpinner from "@/components/ui/LoadingSpinner"
 import ErrorMessage from "@/components/ui/ErrorMessage"
 import ReactMarkdown from 'react-markdown'
+import { base_drive_path } from "@/constants"
 
 function sanitizePathSegment(value: string) {
   return value.trim().replace(/[\\/]/g, '-')
@@ -96,7 +97,7 @@ export default function CertificationProgress() {
 
   useEffect(() => {
     if (user?.id) {
-      fetchCertificationProgress()
+      fetchCertificationProgress(true) // Sync on initial load
     }
   }, [user])
 
@@ -135,9 +136,9 @@ export default function CertificationProgress() {
     try {
       const fileName = buildRequirementFileName(user.fname, user.lname, req.requirement.name, file.name)
       const renamedFile = new File([file], fileName, { type: file.type })
-      const folderPath = `${sanitizePathSegment(areaName)}/${sanitizePathSegment(churchName)}`
+      const folderPath = `${sanitizePathSegment(base_drive_path)}/${sanitizePathSegment(areaName)}/${sanitizePathSegment(churchName)}`
 
-      await upload(renamedFile, folderPath, true)
+      await upload(renamedFile, folderPath, true, activeUploadReq.id)
       await fetchCertificationProgress()
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed"
@@ -148,10 +149,11 @@ export default function CertificationProgress() {
     }
   }
 
-  async function fetchCertificationProgress() {
+  async function fetchCertificationProgress(sync = false) {
     try {
       setLoading(true)
-      const response = await api.get<UserCertification[]>(`/api/db/certifications/progress/${user!.id}`)
+      const syncParam = sync ? '?sync=true' : ''
+      const response = await api.get<UserCertification[]>(`/api/db/certifications/progress/${user!.id}${syncParam}`)
       setCertifications(response)
     } catch (err: any) {
       setError(err?.message || "Failed to load certification progress")
@@ -368,28 +370,57 @@ export default function CertificationProgress() {
                                     {req.approved_at && (
                                       <span>Approved: {new Date(req.approved_at).toLocaleDateString()}</span>
                                     )}
-                                    {req.file_url && (
-                                      <a 
-                                        href={req.file_url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="text-blue-600 hover:underline"
-                                      >
-                                        View File
-                                      </a>
-                                    )}
                                   </div>
 
-                                  {req.status === 'not_started' && !isAutoApprove && req.requirement.requirement_type === 'File' && (
+                                  {!isAutoApprove && req.requirement.requirement_type === 'File' && (
                                     <>
-                                      <Button
-                                        variant="primary"
-                                        className="mt-3 text-xs py-1 px-3"
-                                        onClick={() => triggerUpload(req)}
-                                        disabled={isDisabled || uploadingReqId === req.id || !areaName || !churchName}
-                                      >
-                                        {uploadingReqId === req.id ? 'Uploading...' : 'Upload File'}
-                                      </Button>
+                                      {req.status === 'not_started' ? (
+                                        <Button
+                                          variant="primary"
+                                          className="mt-3 text-xs py-1 px-3"
+                                          onClick={() => triggerUpload(req)}
+                                          disabled={isDisabled || uploadingReqId === req.id || !areaName || !churchName}
+                                        >
+                                          {uploadingReqId === req.id ? 'Uploading...' : 'Upload File'}
+                                        </Button>
+                                      ) : (
+                                        <div className="flex items-center gap-3 mt-3">
+                                          {req.file_url && (() => {
+                                            try {
+                                              const fileData = JSON.parse(req.file_url)
+                                              return (
+                                                <a 
+                                                  href={fileData.webViewLink} 
+                                                  target="_blank" 
+                                                  rel="noopener noreferrer"
+                                                  className="text-blue-600 hover:underline text-xs"
+                                                >
+                                                  View Current File
+                                                </a>
+                                              )
+                                            } catch {
+                                              return (
+                                                <a 
+                                                  href={req.file_url} 
+                                                  target="_blank" 
+                                                  rel="noopener noreferrer"
+                                                  className="text-blue-600 hover:underline text-xs"
+                                                >
+                                                  View Current File
+                                                </a>
+                                              )
+                                            }
+                                          })()}
+                                          <Button
+                                            variant="secondary"
+                                            className="text-xs py-1 px-3"
+                                            onClick={() => triggerUpload(req)}
+                                            disabled={isDisabled || uploadingReqId === req.id || !areaName || !churchName}
+                                          >
+                                            {uploadingReqId === req.id ? 'Uploading...' : 'Re-upload File'}
+                                          </Button>
+                                        </div>
+                                      )}
                                       {uploadErrors[req.id] && (
                                         <p className="text-xs text-red-600 mt-1">{uploadErrors[req.id]}</p>
                                       )}
