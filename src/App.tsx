@@ -1,22 +1,23 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Login from '@/pages/Login'
+import SignUp from '@/pages/SignUp'
 import RouteLayout from '@/layouts/RouteLayout'
-import { useAuth } from '@/hooks/useAuth'
-import SignUp from './pages/SignUp'
-
-
-function ProtectedRoute() {
-  const { user } = useAuth()
-  return user ? (user.active === 1 ? <RouteLayout /> : <Navigate to="/signup" replace />) : <Navigate to="/login" replace />
-}
-
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { ROUTES } from '@/routes'
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/*" element={<ProtectedRoute />} />
+      <Route path={ROUTES.LOGIN} element={<Login />} />
+      <Route path={ROUTES.SIGNUP} element={<SignUp />} />
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <RouteLayout />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   )
 }

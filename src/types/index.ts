@@ -1,4 +1,2 @@
-export interface ApiResponse<T> {
-  data: T
-  error: string | null
-}
+// Types are organized by domain in separate files
+// See: types/auth.ts, types/certification.ts, etc.

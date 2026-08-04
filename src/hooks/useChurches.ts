@@ -1,51 +1,36 @@
-import { Church, churchRoutes } from "@/services/church";
-import { useEffect, useState } from "react";
-
-
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { Church, churchService } from "@/services/church"
 
 interface useChurchReturn {
-    churches: Church[],
-    loading: boolean,
-    error: string | null,
-    getByArea: (areaId: number) => void,
-    clearFilter: () => void,
+    churches: Church[]
+    loading: boolean
+    error: string | null
+    getByArea: (areaId: number) => void
+    clearFilter: () => void
     refresh: () => void
 }
 
-
 export function useChurch(areaIdInit: number | null): useChurchReturn {
-
     const [areaId, setAreaId] = useState<number | null>(areaIdInit)
-    const [churches, setChurches] = useState<Church[]>([])
-    const [loading, setLoading] = useState<boolean>(true)
-    const [error, setError] = useState<string | null>(null)
-    const [tick, setTick] = useState<number>(0)
 
-    useEffect(() => {
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ['churches', areaId],
+        queryFn: () => areaId !== null 
+            ? churchService.getChurchByAreaId(areaId)
+            : churchService.getChurches()
+    })
 
-        setLoading(true)
-        setError(null)
-
-        const request = areaId !== null
-            ? churchRoutes.getChurchByAreaId(areaId)
-            : churchRoutes.getChurches()
-
-        request
-            .then(data => setChurches(data))
-            .catch((e) => setError(e.message))
-            .finally(() => setLoading(false))
-
-    }, [areaId, tick])
-
-
-    function getByArea(areaId: number) { setAreaId(areaId) }
+    function getByArea(newAreaId: number) { setAreaId(newAreaId) }
     function clearFilter() { setAreaId(null) }
-    function refresh() { setTick(t => t + 1) }
+    function refresh() { refetch() }
 
-
-
-
-    return { churches, loading, error, getByArea, clearFilter, refresh }
-
-
+    return {
+        churches: data ?? [],
+        loading: isLoading,
+        error: error ? (error instanceof Error ? error.message : String(error)) : null,
+        getByArea,
+        clearFilter,
+        refresh
+    }
 }

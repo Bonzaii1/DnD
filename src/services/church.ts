@@ -13,7 +13,7 @@ export interface Church {
 
 const API_URL = '/api/db'
 
-export const churchRoutes = {
+export const churchService = {
 
     getChurches: async (): Promise<Church[]> => {
         return api.get<Church[]>(API_URL + '/churches')
