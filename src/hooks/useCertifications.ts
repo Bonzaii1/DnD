@@ -9,10 +9,11 @@ interface useCertificationTypeReturn {
     refresh: () => void
 }
 
-export function useCertificationType(): useCertificationTypeReturn {
+export function useCertificationType(role: string | undefined): useCertificationTypeReturn {
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ['certifications'],
-        queryFn: certificationService.getCertificationTypes
+        queryKey: ['certifications', role],
+        queryFn: () => certificationService.getCertificationTypes(role!),
+        enabled: !!role
     })
 
     return {

@@ -20,8 +20,8 @@ export default function Register() {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true)
   //const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true)
   const {eventSeries } = useEventSeries()
-  const {certifications } = useCertificationType()
   const {user} = useAuth()
+  const {certifications } = useCertificationType(user?.role)
 
   const [isRegisteredFlag, setIsRegisteredFlag] = useState(false)
 
