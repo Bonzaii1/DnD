@@ -12,7 +12,7 @@ const API_ROUTE = '/api/db'
 
 export const certificationService = {
 
-    getCertificationTypes: async (): Promise<CertificationType[]> => {
-        return api.get<CertificationType[]>(API_ROUTE + '/certificationTypes')
+    getCertificationTypes: async (role: string): Promise<CertificationType[]> => {
+        return api.get<CertificationType[]>(API_ROUTE + '/certificationTypes?role=' + encodeURIComponent(role))
     },
 }
